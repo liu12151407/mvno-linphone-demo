@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Text Appearance -->
+    <style name="TextAppearance.App.Regular.Primary" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/text_color_primary</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <style name="TextAppearance.App.Medium.Primary" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/text_color_primary</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="TextAppearance.App.Medium.Contrast" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/text_color_contrast</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="TextAppearance.App.Bold.Primary" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/text_color_primary</item>
+        <item name="android:fontFamily">sans-serif-black</item>
+    </style>
+
+    <style name="TextAppearance.App.Bold.Accent" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/color_accent</item>
+        <item name="android:fontFamily">sans-serif-black</item>
+    </style>
+
+    <style name="TextAppearance.App.Bold.Contrast" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/text_color_contrast</item>
+        <item name="android:fontFamily">sans-serif-black</item>
+    </style>
+
+    <style name="TextAppearance.App.Regular.Secondary" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/text_color_secondary</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <style name="TextAppearance.App.Medium.Secondary" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/text_color_secondary</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="TextAppearance.App.Regular.Accent" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/color_accent</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <style name="TextAppearance.App.Regular.Contrast" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/text_color_contrast</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <style name="TextAppearance.App.Medium.Accent" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/color_accent</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="TextInputStyle">
+        <item name="android:layout_marginStart">8dp</item>
+        <item name="android:layout_marginEnd">8dp</item>
+        <item name="android:layout_marginTop">4dp</item>
+        <item name="android:layout_marginBottom">4dp</item>
+        <item name="boxBackgroundMode">outline</item>
+        <item name="boxBackgroundColor">#EDEDED</item>
+        <item name="boxCornerRadiusTopStart">6dp</item>
+        <item name="boxCornerRadiusTopEnd">6dp</item>
+        <item name="boxCornerRadiusBottomEnd">6dp</item>
+        <item name="boxCornerRadiusBottomStart">6dp</item>
+        <item name="boxStrokeWidth">1dp</item>
+<!--        <item name="boxCollapsedPaddingTop">8dp</item>-->
+
+<!--        <item name="hintTextAppearance">@style/TextAppearance.App.Medium.Contrast</item>-->
+
+    </style>
+
+</resources>

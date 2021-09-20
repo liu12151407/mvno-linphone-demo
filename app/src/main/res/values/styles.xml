@@ -69,9 +69,20 @@
         <item name="boxCornerRadiusBottomEnd">6dp</item>
         <item name="boxCornerRadiusBottomStart">6dp</item>
         <item name="boxStrokeWidth">1dp</item>
-<!--        <item name="boxCollapsedPaddingTop">8dp</item>-->
+    </style>
 
-<!--        <item name="hintTextAppearance">@style/TextAppearance.App.Medium.Contrast</item>-->
+    <style name="TextInputStyle.ExposedDropdownMenu" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+        <item name="android:layout_marginStart">8dp</item>
+        <item name="android:layout_marginEnd">8dp</item>
+        <item name="android:layout_marginTop">4dp</item>
+        <item name="android:layout_marginBottom">4dp</item>
+        <item name="boxBackgroundMode">outline</item>
+        <item name="boxBackgroundColor">#EDEDED</item>
+        <item name="boxCornerRadiusTopStart">6dp</item>
+        <item name="boxCornerRadiusTopEnd">6dp</item>
+        <item name="boxCornerRadiusBottomEnd">6dp</item>
+        <item name="boxCornerRadiusBottomStart">6dp</item>
+        <item name="boxStrokeWidth">1dp</item>
 
     </style>
 

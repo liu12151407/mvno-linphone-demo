@@ -26,6 +26,21 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
+    <TextView
+        android:id="@+id/coreVersionView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        tools:text="Core version: 123" />
+
+    <TextView
+        android:id="@+id/registrationStateView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:textAppearance="@style/TextAppearance.App.Medium.Accent"
+        tools:text="Connected" />
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/imsiInputLayout"
         style="@style/TextInputStyle"
@@ -68,7 +83,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:inputType="text"
-            android:text="\@ims.mnc062.mcc250.3gppnetwork.org" />
+            android:text="ims.mnc062.mcc250.3gppnetwork.org" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -102,11 +117,27 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:paddingVertical="16dp"
-        android:paddingHorizontal="8dp"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/transportTypeInputLayout"
+        style="@style/TextInputStyle.ExposedDropdownMenu"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="8dp"
+        android:hint="Transport Type">
+
+        <AutoCompleteTextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:inputType="none"
+            tools:ignore="LabelFor" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="16dp">
 
         <Button
             android:id="@+id/registrationButton"
@@ -122,6 +153,7 @@
             android:id="@+id/logoutButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:enabled="false"
             android:text="Logout"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -144,12 +176,12 @@
         style="@style/TextInputStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="">
+        android:hint="Call number">
 
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:inputType="text"
+            android:inputType="phone"
             android:text="79299790035" />
 
     </com.google.android.material.textfield.TextInputLayout>

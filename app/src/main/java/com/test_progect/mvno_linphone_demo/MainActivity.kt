@@ -4,6 +4,8 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.commit
+import com.test_progect.mvno_linphone_demo.account.AccountFragment
+import com.test_progect.mvno_linphone_demo.call.CallFragment
 import com.test_progect.mvno_linphone_demo.databinding.ActivityMainBinding
 import org.linphone.core.Core
 import org.linphone.core.Factory

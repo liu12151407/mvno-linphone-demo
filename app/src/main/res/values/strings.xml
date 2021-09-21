@@ -3,8 +3,17 @@
     <string name="app_name">mvno-linphone-demo</string>
 
     <string name="linphone_core_version">Core version: %s</string>
-
     <string name="linphone_registration_ok">Connected</string>
     <string name="linphone_registration_failed">Connection failed: %s</string>
+
+    <string name="account_screen_title">ACCOUNT</string>
+    <string name="account_ims_view_hint">IMS</string>
+    <string name="account_phone_number_view_hint">Phone Number</string>
+    <string name="account_domain_view_hint">Domain</string>
+    <string name="account_password_view_hint">Password</string>
+    <string name="account_proxy_view_hint">Proxy Address</string>
+    <string name="account_registration_button">Registration</string>
+
+    <string name="call_screen_title">CALL</string>
 
 </resources>

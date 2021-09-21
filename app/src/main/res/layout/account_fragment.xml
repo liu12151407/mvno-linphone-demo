@@ -20,7 +20,7 @@
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:gravity="center"
-                android:text="ACCOUNT"
+                android:text="@string/account_screen_title"
                 android:textAppearance="@style/TextAppearance.App.Medium.Contrast"
                 android:textSize="20sp" />
         </Toolbar>
@@ -48,7 +48,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:hint="IMSI">
+        android:hint="@string/account_ims_view_hint">
 
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
@@ -63,7 +63,7 @@
         style="@style/TextInputStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Phone number">
+        android:hint="@string/account_phone_number_view_hint">
 
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
@@ -78,7 +78,7 @@
         style="@style/TextInputStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Domain">
+        android:hint="@string/account_domain_view_hint">
 
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
@@ -93,7 +93,7 @@
         style="@style/TextInputStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Password">
+        android:hint="@string/account_password_view_hint">
 
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
@@ -108,7 +108,7 @@
         style="@style/TextInputStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Proxy Address">
+        android:hint="@string/account_proxy_view_hint">
 
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
@@ -139,7 +139,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="Registration"
+        android:text="@string/account_registration_button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/mockView"
         app:layout_constraintStart_toStartOf="parent"

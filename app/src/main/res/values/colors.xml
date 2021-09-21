@@ -13,5 +13,7 @@
     <color name="color_accent">@color/teal_700</color>
     <color name="text_color_secondary">#FF9299A2</color>
 
+    <color name="red">#E53935</color>
+    <color name="green">#43A047</color>
 
 </resources>

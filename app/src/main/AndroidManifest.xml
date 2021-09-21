@@ -20,6 +20,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Prevents Android to kill the app during a call -->
+        <service android:name="org.linphone.core.tools.service.CoreService"
+            android:foregroundServiceType="phoneCall|camera|microphone"
+            android:stopWithTask="false" />
+
     </application>
 
 </manifest>

@@ -16,8 +16,9 @@
             android:layout_height="match_parent">
 
             <TextView
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:layout_gravity="center"
                 android:gravity="center"
                 android:text="ACCOUNT"
                 android:textAppearance="@style/TextAppearance.App.Medium.Contrast"
@@ -53,7 +54,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:inputType="number"
-            android:text="250621003718003" />
+            tools:text="250621003718003" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -68,7 +69,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:inputType="phone"
-            android:text="79950993622" />
+            tools:text="79950993622" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -83,7 +84,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:inputType="text"
-            android:text="ims.mnc062.mcc250.3gppnetwork.org" />
+            tools:text="ims.mnc062.mcc250.3gppnetwork.org" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -98,7 +99,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:inputType="textVisiblePassword"
-            android:text="9876543210" />
+            tools:text="9876543210" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -113,7 +114,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:inputType="text"
-            android:text="10.233.75.140:5060" />
+            tools:text="10.233.75.140:5060" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -123,7 +124,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="8dp"
-        android:hint="Transport Type">
+        tools:hint="Transport Type">
 
         <AutoCompleteTextView
             android:layout_width="match_parent"
@@ -133,57 +134,15 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
+    <Button
+        android:id="@+id/registrationButton"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="8dp"
-        android:paddingVertical="16dp">
-
-        <Button
-            android:id="@+id/registrationButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="Registration"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/mockView"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <Button
-            android:id="@+id/logoutButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:enabled="false"
-            android:text="Logout"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/mockView"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <FrameLayout
-            android:id="@+id/mockView"
-            android:layout_width="8dp"
-            android:layout_height="8dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/outgoingCallInputLayout"
-        style="@style/TextInputStyle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Call number">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:inputType="phone"
-            android:text="79299790035" />
-
-    </com.google.android.material.textfield.TextInputLayout>
+        android:layout_gravity="center"
+        android:text="Registration"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/mockView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </LinearLayout>

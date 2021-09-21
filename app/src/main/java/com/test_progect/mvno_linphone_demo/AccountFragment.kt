@@ -1,5 +1,7 @@
 package com.test_progect.mvno_linphone_demo
 
+import android.annotation.SuppressLint
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.provider.Settings.Secure
 import android.view.LayoutInflater
@@ -8,31 +10,32 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import androidx.core.content.edit
 import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import com.test_progect.mvno_linphone_demo.databinding.AccountFragmentBinding
 import org.linphone.core.*
 import org.linphone.core.tools.Log
 
-fun createAccountFragment(): AccountFragment = AccountFragment()
+private const val PREF_USER_NAME = "PREF_USER_NAME"
+private const val PREF_PHONE_NUMBER = "PREF_PHONE_NUMBER"
+private const val PREF_DOMAIN = "PREF_DOMAIN"
+private const val PREF_PASSWORD = "PREF_PASSWORD"
+private const val PREF_PROXY = "PREF_PROXY"
 
 class AccountFragment : Fragment() {
 
-    private var _binding: AccountFragmentBinding? = null
-    private val binding: AccountFragmentBinding
-        get() = checkNotNull(_binding)
-
-    private val core: Core get() = (requireActivity() as MainActivity).core
-
-    private val username: String by lazy {
-        binding.imsiInputLayout.editText?.text.toString()
-    }
-    private val domain: String by lazy {
-        binding.domainInputLayout.editText?.text.toString()
-    }
-
+    private var uncheckedBinding: AccountFragmentBinding? = null
     private var transportType: TransportType = TransportType.Udp
-
+    private val binding: AccountFragmentBinding get() = checkNotNull(uncheckedBinding)
+    private val router: Router by lazy { requireActivity() as Router }
+    private val sharedPreferences: SharedPreferences by lazy { (requireActivity() as MainActivity).sharedPreferences }
+    private val core: Core by lazy { (requireActivity() as MainActivity).core }
+    private val username: String by lazy { binding.imsiInputLayout.editText?.text.toString() }
+    private val phoneNumber: String by lazy { binding.phoneNumberInputLayout.editText?.text.toString() }
+    private val domain: String by lazy { binding.domainInputLayout.editText?.text.toString() }
+    private val password: String by lazy { binding.passwordInputLayout.editText?.text.toString() }
+    private val proxy: String by lazy { binding.proxyInputLayout.editText?.text.toString() }
     private val coreListener = object : CoreListenerStub() {
 
         override fun onAccountRegistrationStateChanged(
@@ -44,8 +47,10 @@ class AccountFragment : Fragment() {
             binding.registrationStateView.text = message
             if (state == RegistrationState.Failed || state == RegistrationState.Cleared) {
                 binding.registrationButton.isEnabled = true
+                binding.registrationStateView.text =
+                    getString(R.string.linphone_registration_failed, message)
             } else if (state == RegistrationState.Ok) {
-                binding.logoutButton.isEnabled = true
+                router.openCall()
             }
         }
 
@@ -56,7 +61,7 @@ class AccountFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = AccountFragmentBinding.inflate(inflater, container, false)
+        uncheckedBinding = AccountFragmentBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -66,8 +71,7 @@ class AccountFragment : Fragment() {
     }
 
     private fun login() {
-        val password = binding.passwordInputLayout.editText?.text.toString()
-        val proxy = binding.proxyInputLayout.editText?.text.toString()
+        saveAuthInfo()
         val authInfo = Factory.instance().createAuthInfo(
             username,
             "$username@$domain",
@@ -100,17 +104,8 @@ class AccountFragment : Fragment() {
         }
     }
 
-    private fun unregister() {
-        val account = core.defaultAccount ?: return
-        core.apply {
-            removeAccount(account)
-            clearAccounts()
-            clearAllAuthInfo()
-        }
-    }
-
+    @SuppressLint("HardwareIds")
     private fun Account.patchProxy() {
-        val phoneNumber = binding.phoneNumberInputLayout.editText?.text.toString()
         val deviceId = Secure.getString(requireActivity().contentResolver, Secure.ANDROID_ID)
         setCustomHeader("To", "sip:$username@$domain")
         setCustomHeader("From", "<sip:$username@$domain>;tag=~UwXzKOlD\n")
@@ -132,6 +127,7 @@ class AccountFragment : Fragment() {
     }
 
     private fun initView() {
+        initAuthInfoViews()
         binding.root.setOnClickListener { clearFocus() }
         initTransportTypeDropDownView()
         binding.coreVersionView.text = getString(R.string.linphone_core_version, core.version)
@@ -140,10 +136,35 @@ class AccountFragment : Fragment() {
             it.isEnabled = false
             clearFocus()
         }
-        binding.logoutButton.setOnClickListener {
-            unregister()
-            it.isEnabled = false
-            clearFocus()
+    }
+
+    private fun initAuthInfoViews() {
+        binding.apply {
+            imsiInputLayout.editText?.setText(
+                sharedPreferences.getString(PREF_USER_NAME, "250621003718003")
+            )
+            phoneNumberInputLayout.editText?.setText(
+                sharedPreferences.getString(PREF_PHONE_NUMBER, "79950993622")
+            )
+            domainInputLayout.editText?.setText(
+                sharedPreferences.getString(PREF_DOMAIN, "ims.mnc062.mcc250.3gppnetwork.org")
+            )
+            passwordInputLayout.editText?.setText(
+                sharedPreferences.getString(PREF_PASSWORD, "9876543210")
+            )
+            proxyInputLayout.editText?.setText(
+                sharedPreferences.getString(PREF_PROXY, "10.233.75.140:5060")
+            )
+        }
+    }
+
+    private fun saveAuthInfo() {
+        sharedPreferences.edit {
+            putString(PREF_USER_NAME, username)
+            putString(PREF_PHONE_NUMBER, phoneNumber)
+            putString(PREF_DOMAIN, domain)
+            putString(PREF_PASSWORD, password)
+            putString(PREF_PROXY, proxy)
         }
     }
 

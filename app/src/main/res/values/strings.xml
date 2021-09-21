@@ -4,4 +4,7 @@
 
     <string name="linphone_core_version">Core version: %s</string>
 
+    <string name="linphone_registration_ok">Connected</string>
+    <string name="linphone_registration_failed">Connection failed: %s</string>
+
 </resources>

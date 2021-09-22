@@ -72,19 +72,23 @@ class CallFragment : Fragment(), CallView.Presenter {
         val speakerEnabled = currentAudioDevice?.type == AudioDevice.Type.Speaker
         for (audioDevice in core.audioDevices) {
             if (speakerEnabled && audioDevice.type == AudioDevice.Type.Earpiece) {
+                view.setSpeakerIcon(R.drawable.ic_speaker_off)
                 core.currentCall?.outputAudioDevice = audioDevice
                 return
             } else if (!speakerEnabled && audioDevice.type == AudioDevice.Type.Speaker) {
+                view.setSpeakerIcon(R.drawable.ic_speaker)
                 core.currentCall?.outputAudioDevice = audioDevice
                 return
-            } else if (audioDevice.type == AudioDevice.Type.Bluetooth) {
-                core.currentCall?.outputAudioDevice = audioDevice
             }
         }
     }
 
     override fun onMicButtonClicked() {
         core.enableMic(!core.micEnabled())
+        when (core.micEnabled()) {
+            true -> view.setMicIcon(R.drawable.ic_mic)
+            false -> view.setMicIcon(R.drawable.ic_mic_off)
+        }
     }
 
     override fun onMenuItemClicked(item: MenuItem): Boolean {

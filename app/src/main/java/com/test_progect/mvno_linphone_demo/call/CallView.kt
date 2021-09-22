@@ -1,6 +1,7 @@
 package com.test_progect.mvno_linphone_demo.call
 
 import android.view.MenuItem
+import androidx.annotation.DrawableRes
 import com.test_progect.mvno_linphone_demo.R
 import com.test_progect.mvno_linphone_demo.databinding.CallFragmentBinding
 import org.linphone.core.Call
@@ -10,14 +11,18 @@ interface CallView {
 
     fun onCallStateChanged(state: Call.State?, message: String)
     fun onRegistrationStateChanged(state: RegistrationState, message: String)
+    fun setMicIcon(@DrawableRes id: Int)
+    fun setSpeakerIcon(@DrawableRes id: Int)
 
     interface Presenter {
+
         fun onCallButtonClicked()
         fun onCallEndButtonClicked()
         fun onSpeakerButtonClicked()
         fun onMicButtonClicked()
         fun onMenuItemClicked(item: MenuItem): Boolean
     }
+
 }
 
 class CallViewImpl(
@@ -76,6 +81,14 @@ class CallViewImpl(
                 // empty
             }
         }
+    }
+
+    override fun setMicIcon(id: Int) {
+        binding.micButton.setImageResource(id)
+    }
+
+    override fun setSpeakerIcon(id: Int) {
+        binding.speakerButton.setImageResource(id)
     }
 
     private fun initView() {

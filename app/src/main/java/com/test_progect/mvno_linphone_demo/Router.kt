@@ -6,4 +6,8 @@ interface Router {
 
     fun openCall()
 
+    fun openOutgoingCall(phoneNumber: String)
+
+    fun openIncomingCall()
+
 }

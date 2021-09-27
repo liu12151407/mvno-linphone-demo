@@ -15,5 +15,10 @@
     <string name="account_registration_button">Registration</string>
 
     <string name="call_screen_title">CALL</string>
+    <string name="call_button">Call</string>
+
+    <string name="incoming_call">INCOMING CALL</string>
+
+    <string name="outgoing_call_title">OUTGOING CALL</string>
 
 </resources>

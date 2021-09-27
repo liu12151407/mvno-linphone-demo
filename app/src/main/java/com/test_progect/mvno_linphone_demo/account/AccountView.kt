@@ -19,7 +19,8 @@ const val PREF_PROXY = "PREF_PROXY"
 interface AccountView {
 
     fun setRegistrationStateMessage(message: String)
-    fun onRegistrationFailed(message: String)
+    fun setRegistrationFailedState(message: String)
+    fun setRegistrationOkState(message: String)
 
     interface Presenter {
 
@@ -43,14 +44,15 @@ class AccountViewImpl(
 ) : AccountView {
 
     private val context = binding.root.context
-    private val username: String by lazy { binding.imsiInputLayout.editText?.text.toString() }
-    private val phoneNumber: String by lazy { binding.phoneNumberInputLayout.editText?.text.toString() }
-    private val domain: String by lazy { binding.domainInputLayout.editText?.text.toString() }
-    private val password: String by lazy { binding.passwordInputLayout.editText?.text.toString() }
-    private val proxy: String by lazy { binding.proxyInputLayout.editText?.text.toString() }
+    private val username: String get() = binding.imsiInputLayout.editText?.text.toString()
+    private val phoneNumber: String get() = binding.phoneNumberInputLayout.editText?.text.toString()
+    private val domain: String get() = binding.domainInputLayout.editText?.text.toString()
+    private val password: String get() = binding.passwordInputLayout.editText?.text.toString()
+    private val proxy: String get() = binding.proxyInputLayout.editText?.text.toString()
     private var transportType: TransportType = TransportType.Udp
 
     init {
+
         initAuthInfoViews()
         binding.root.setOnClickListener { clearFocus() }
         binding.coreVersionView.text =
@@ -65,7 +67,6 @@ class AccountViewImpl(
                 proxy,
                 transportType
             )
-            it.isEnabled = false
         }
 
     }
@@ -74,10 +75,15 @@ class AccountViewImpl(
         binding.registrationStateView.text = message
     }
 
-    override fun onRegistrationFailed(message: String) {
+    override fun setRegistrationFailedState(message: String) {
         binding.registrationButton.isEnabled = true
         binding.registrationStateView.text =
             context.getString(R.string.linphone_registration_failed, message)
+    }
+
+    override fun setRegistrationOkState(message: String) {
+        binding.registrationButton.isEnabled = false
+        binding.registrationStateView.text = context.getString(R.string.linphone_registration_ok)
     }
 
     private fun initAuthInfoViews() {

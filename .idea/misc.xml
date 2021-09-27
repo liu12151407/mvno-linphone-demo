@@ -3,16 +3,23 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="app/src/main/res/drawable/call_answer_background.xml" value="0.31666666666666665" />
         <entry key="app/src/main/res/drawable/circle_background.xml" value="0.2462962962962963" />
+        <entry key="app/src/main/res/drawable/hang_up_background.xml" value="0.34814814814814815" />
         <entry key="app/src/main/res/drawable/ic_call.xml" value="0.3177083333333333" />
         <entry key="app/src/main/res/drawable/ic_call_end.xml" value="0.3177083333333333" />
+        <entry key="app/src/main/res/drawable/ic_hang_up.xml" value="0.34814814814814815" />
         <entry key="app/src/main/res/drawable/ic_mic.xml" value="0.3128205128205128" />
         <entry key="app/src/main/res/drawable/ic_mic_off.xml" value="0.10885416666666667" />
         <entry key="app/src/main/res/drawable/ic_speaker.xml" value="0.3128205128205128" />
         <entry key="app/src/main/res/drawable/ic_speaker_off.xml" value="0.1" />
         <entry key="app/src/main/res/layout/account_fragment.xml" value="0.3015625" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.25" />
-        <entry key="app/src/main/res/layout/call_fragment.xml" value="0.27037037037037037" />
+        <entry key="app/src/main/res/layout/call_fragment.xml" value="0.23697916666666666" />
+        <entry key="app/src/main/res/layout/call_fragment_copy.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/call_fragment_сщзн.xml" value="0.371875" />
+        <entry key="app/src/main/res/layout/incoming_call_fragment.xml" value="0.3640897755610973" />
+        <entry key="app/src/main/res/layout/outgouing_call_fragment.xml" value="0.1" />
         <entry key="app/src/main/res/layout/transport_type_item.xml" value="0.27037037037037037" />
         <entry key="app/src/main/res/menu/call_menu.xml" value="0.27037037037037037" />
       </map>

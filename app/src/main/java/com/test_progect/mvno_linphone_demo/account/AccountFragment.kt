@@ -9,7 +9,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.edit
 import androidx.fragment.app.Fragment
-import com.test_progect.mvno_linphone_demo.*
+import com.test_progect.mvno_linphone_demo.MainActivity
+import com.test_progect.mvno_linphone_demo.Router
 import com.test_progect.mvno_linphone_demo.databinding.AccountFragmentBinding
 import org.linphone.core.*
 import org.linphone.core.tools.Log
@@ -32,8 +33,9 @@ class AccountFragment : Fragment(), AccountView.Presenter {
         ) {
             view.setRegistrationStateMessage(message)
             if (state == RegistrationState.Failed || state == RegistrationState.Cleared) {
-                view.onRegistrationFailed(message)
+                view.setRegistrationFailedState(message)
             } else if (state == RegistrationState.Ok) {
+                view.setRegistrationOkState(message)
                 router.openCall()
             }
         }
@@ -48,6 +50,11 @@ class AccountFragment : Fragment(), AccountView.Presenter {
         uncheckedBinding = AccountFragmentBinding.inflate(inflater, container, false)
         view = AccountViewImpl(binding, sharedPreferences, this, core.version)
         return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        core.removeListener(coreListener)
     }
 
     override fun onRegistrationButtonClicked(
@@ -115,18 +122,14 @@ class AccountFragment : Fragment(), AccountView.Presenter {
         setCustomHeader("From", "<sip:$username@$domain>;tag=~UwXzKOlD\n")
         setCustomHeader(
             "Authorization",
-            "Digest realm=\"ims.mnc062.mcc250.3gppnetwork.org\", nonce=\"9b4c5fedc08296985b586acee1f16218\", algorithm=MD5, username=\""
-                    + username
+            "Digest realm=\"ims.mnc062.mcc250.3gppnetwork.org\", nonce=\"9b4c5fedc08296985b586acee1f16218\", algorithm=MD5, username=\"$username"
                     + "@ims.mnc062.mcc250.3gppnetwork.org\", uri=\"sip:ims.mnc062.mcc250.3gppnetwork.org\", response=\"365b94fb3ad933759f921d7d6d88d257\", cnonce=\"HQlmMYSNfKlp66nk\", nc=00000001, qop=auth"
         )
         setCustomHeader(
             "Contact",
-            ("<sip:+"
-                    + phoneNumber
-                    + "@172.30.147.209:43530;transport=udp;pn-provider=tinkoff;"
-                    + "pn-prid="
-                    + deviceId
-                    + ";>;gr=urn;+sip.instance=\"<urn:uuid:d1644492-1103-00f8-a4eb-c7a87d3b41f7>\"")
+            ("<sip:+$phoneNumber@172.30.147.209:43530;"
+                    + "transport=udp;pn-provider=tinkoff;pn-prid=$deviceId;>;"
+                    + "gr=urn;+g.3gpp.smsip;+sip.instance=\"<urn:uuid:d1644492-1103-00f8-a4eb-c7a87d3b41f7>\"")
         )
     }
 

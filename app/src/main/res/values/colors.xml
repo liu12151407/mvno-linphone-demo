@@ -7,11 +7,13 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="grey">#EDEDED</color>
+    <color name="dark_grey">#5D5F61</color>
 
     <color name="text_color_primary">@color/black</color>
     <color name="text_color_contrast">@color/white</color>
+    <color name="text_color_secondary">@color/grey</color>
     <color name="color_accent">@color/teal_700</color>
-    <color name="text_color_secondary">#FF9299A2</color>
 
     <color name="red">#E53935</color>
     <color name="green">#43A047</color>

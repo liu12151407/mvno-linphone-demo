@@ -44,7 +44,7 @@ class CallViewImpl(
                 presenter.onCallButtonCLicked(phoneNumber)
             }
             phoneNumberInputLayout.editText?.apply {
-                setText(sharedPreferences.getString(PREF_LAST_OUTGOING_CAL, ""))
+                setText(sharedPreferences.getString(PREF_LAST_OUTGOING_CAL, "+7"))
                 addTextChangedListener { callButton.isEnabled = phoneNumber.isNotBlank() }
             }
         }

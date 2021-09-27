@@ -89,10 +89,10 @@ class AccountViewImpl(
     private fun initAuthInfoViews() {
         binding.apply {
             imsiInputLayout.editText?.setText(
-                sharedPreferences.getString(PREF_USER_NAME, "250621003718003")
+                sharedPreferences.getString(PREF_USER_NAME, "")
             )
             phoneNumberInputLayout.editText?.setText(
-                sharedPreferences.getString(PREF_PHONE_NUMBER, "79950993622")
+                sharedPreferences.getString(PREF_PHONE_NUMBER, "+7")
             )
             domainInputLayout.editText?.setText(
                 sharedPreferences.getString(PREF_DOMAIN, "ims.mnc062.mcc250.3gppnetwork.org")

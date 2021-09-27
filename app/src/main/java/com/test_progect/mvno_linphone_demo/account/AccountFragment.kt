@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment
 import com.test_progect.mvno_linphone_demo.MainActivity
 import com.test_progect.mvno_linphone_demo.Router
 import com.test_progect.mvno_linphone_demo.databinding.AccountFragmentBinding
+import com.test_progect.mvno_linphone_demo.validatePhoneNumber
 import org.linphone.core.*
 import org.linphone.core.tools.Log
 
@@ -66,35 +67,38 @@ class AccountFragment : Fragment(), AccountView.Presenter {
         transportType: TransportType
     ) {
         saveAuthInfo(username, phoneNumber, domain, password, proxy)
-        val authInfo = Factory.instance().createAuthInfo(
-            username,
-            "$username@$domain",
-            password,
-            null,
-            null,
-            "@$domain"
-        )
-        val identity = Factory.instance().createAddress("sip:$username@$domain")
-        val address = Factory.instance().createAddress("sip:$proxy")?.apply {
-            transport = transportType
-        }
-        val accountParams = core.createAccountParams().apply {
-            identityAddress = identity
-            serverAddress = address
-            registerEnabled = true
-        }
-        val account = core.createAccount(accountParams).apply {
-            patchProxy(username, phoneNumber, domain)
-            addListener { _, state, message ->
-                Log.i("[Account] Registration state changed: $state, $message")
+        val isPhoneNumberValid = validatePhoneNumber(phoneNumber, requireContext())
+        if (isPhoneNumberValid) {
+            val authInfo = Factory.instance().createAuthInfo(
+                username,
+                "$username@$domain",
+                password,
+                null,
+                null,
+                "@$domain"
+            )
+            val identity = Factory.instance().createAddress("sip:$username@$domain")
+            val address = Factory.instance().createAddress("sip:$proxy")?.apply {
+                transport = transportType
             }
-        }
-        core.apply {
-            addAuthInfo(authInfo)
-            addAccount(account)
-            defaultAccount = account
-            addListener(coreListener)
-            start()
+            val accountParams = core.createAccountParams().apply {
+                identityAddress = identity
+                serverAddress = address
+                registerEnabled = true
+            }
+            val account = core.createAccount(accountParams).apply {
+                patchProxy(username, phoneNumber, domain)
+                addListener { _, state, message ->
+                    Log.i("[Account] Registration state changed: $state, $message")
+                }
+            }
+            core.apply {
+                addAuthInfo(authInfo)
+                addAccount(account)
+                defaultAccount = account
+                addListener(coreListener)
+                start()
+            }
         }
     }
 
@@ -127,7 +131,7 @@ class AccountFragment : Fragment(), AccountView.Presenter {
         )
         setCustomHeader(
             "Contact",
-            ("<sip:+$phoneNumber@172.30.147.209:43530;"
+            ("<sip:$phoneNumber@172.30.147.209:43530;"
                     + "transport=udp;pn-provider=tinkoff;pn-prid=$deviceId;>;"
                     + "gr=urn;+g.3gpp.smsip;+sip.instance=\"<urn:uuid:d1644492-1103-00f8-a4eb-c7a87d3b41f7>\"")
         )

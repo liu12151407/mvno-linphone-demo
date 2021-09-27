@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <string name="app_name">mvno-linphone-demo</string>
 
@@ -16,9 +16,13 @@
 
     <string name="call_screen_title">CALL</string>
     <string name="call_button">Call</string>
+    <string name="on_microphone_permission_denied_message">To make a call, go to Settings and allow Microphone permission</string>
+    <string name="microphone_permission_request_rational">To make calls, allow Microphone permission</string>
 
     <string name="incoming_call">INCOMING CALL</string>
 
     <string name="outgoing_call_title">OUTGOING CALL</string>
+
+    <string name="invalid_phone_number_format" tools:ignore="Typos">Number should be in format: +7 XXX XX XX</string>
 
 </resources>

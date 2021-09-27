@@ -5,6 +5,17 @@ import android.os.Build
 import android.view.View
 import android.view.WindowInsets
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
+
+private const val PHONE_NUMBER_LENGTH = 12
+
+fun validatePhoneNumber(phoneNumber: String, context: Context): Boolean {
+    val isValid = phoneNumber.startsWith("+7") && phoneNumber.length == PHONE_NUMBER_LENGTH
+    if (!isValid) {
+        Toast.makeText(context, R.string.invalid_phone_number_format, Toast.LENGTH_LONG).show()
+    }
+    return isValid
+}
 
 fun View.hideKeyboard() {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {

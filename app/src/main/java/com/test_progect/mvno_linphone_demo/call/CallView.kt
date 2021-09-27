@@ -1,5 +1,7 @@
 package com.test_progect.mvno_linphone_demo.call
 
+import android.content.SharedPreferences
+import android.telephony.PhoneNumberFormattingTextWatcher
 import android.view.MenuItem
 import androidx.core.widget.addTextChangedListener
 import com.test_progect.mvno_linphone_demo.R
@@ -10,6 +12,7 @@ interface CallView {
 
     fun setRegistrationOkState(message: String)
     fun setRegistrationFailedState(message: String)
+    fun setCallButtonAvailability(isEnabled: Boolean)
 
     interface Presenter {
 
@@ -23,6 +26,7 @@ interface CallView {
 class CallViewImpl(
     private val binding: CallFragmentBinding,
     private val presenter: CallView.Presenter,
+    sharedPreferences: SharedPreferences,
 ) : CallView {
 
     private val context = binding.root.context
@@ -33,15 +37,15 @@ class CallViewImpl(
         initToolbar()
         with(binding) {
             registrationStateView.text = context.getString(R.string.linphone_registration_ok)
-            root.setOnClickListener { phoneNumberInputLayout.clearFocus() }
-            callButton.isEnabled = false
+            root.setOnClickListener { clearFocus() }
+            callButton.isEnabled = true
             callButton.setOnClickListener {
-                phoneNumberInputLayout.clearFocus()
-                root.hideKeyboard()
+                clearFocus()
                 presenter.onCallButtonCLicked(phoneNumber)
             }
-            phoneNumberInputLayout.editText?.addTextChangedListener {
-                callButton.isEnabled = phoneNumber.isNotBlank()
+            phoneNumberInputLayout.editText?.apply {
+                setText(sharedPreferences.getString(PREF_LAST_OUTGOING_CAL, ""))
+                addTextChangedListener { callButton.isEnabled = phoneNumber.isNotBlank() }
             }
         }
     }
@@ -51,10 +55,14 @@ class CallViewImpl(
             context.getString(R.string.linphone_registration_ok)
     }
 
-
     override fun setRegistrationFailedState(message: String) {
         binding.registrationStateView.text =
             context.getString(R.string.linphone_registration_failed, message)
+    }
+
+
+    override fun setCallButtonAvailability(isEnabled: Boolean) {
+        binding.callButton.isEnabled = isEnabled
     }
 
     private fun initToolbar() {
@@ -64,6 +72,11 @@ class CallViewImpl(
                 presenter.onMenuItemClicked(it)
             }
         }
+    }
+
+    private fun clearFocus() {
+        binding.phoneNumberInputLayout.clearFocus()
+        binding.root.hideKeyboard()
     }
 
 }

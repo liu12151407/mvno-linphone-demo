@@ -38,9 +38,7 @@ class MainActivity : AppCompatActivity(), Router {
     }
 
     override fun onBackPressed() {
-        if (supportFragmentManager.findFragmentByTag(OutgoingCallFragment::class.java.name) != null) {
-            openCall()
-        } else {
+        if (supportFragmentManager.findFragmentByTag(OutgoingCallFragment::class.java.name) == null) {
             super.onBackPressed()
         }
     }

@@ -1,8 +1,6 @@
 package com.test_progect.mvno_linphone_demo.outgoing_call
 
-import android.content.SharedPreferences
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -29,7 +27,6 @@ class OutgoingCallFragment : Fragment(), OutgoingCallView.Presenter {
     private val binding: OutgouingCallFragmentBinding get() = checkNotNull(uncheckedBinding)
     private val router: Router by lazy { requireActivity() as Router }
     private val core: Core by lazy { (requireActivity() as MainActivity).core }
-    private val sharedPreferences: SharedPreferences by lazy { (requireActivity() as MainActivity).sharedPreferences }
     private val coreListener = object : CoreListenerStub() {
 
         override fun onCallStateChanged(
@@ -42,18 +39,14 @@ class OutgoingCallFragment : Fragment(), OutgoingCallView.Presenter {
             when (state) {
                 Call.State.OutgoingInit -> {
                     // First state an outgoing call will go through
-                    Log.d("ImsDebug", "OutgoingInit")
                 }
                 Call.State.OutgoingProgress -> {
                     // Right after outgoing init
-                    Log.d("ImsDebug", "OutgoingProgress")
                 }
                 Call.State.OutgoingRinging -> {
                     // This state will be reached upon reception of the 180 RINGING
-                    Log.d("ImsDebug", "OutgoingRinging")
                 }
                 Call.State.Connected -> {
-                    Log.d("ImsDebug", "OutgoingRinging")
                     // When the 200 OK has been received
                 }
                 Call.State.StreamsRunning -> {
@@ -63,7 +56,11 @@ class OutgoingCallFragment : Fragment(), OutgoingCallView.Presenter {
                     // Wait for the call to be connected before allowing a call update
                     view.enableMicAndSpeaker()
                 }
-                Call.State.Released -> view.disableButtons()
+                Call.State.Released -> {
+                    view.disableButtons()
+                    Thread.sleep(2000)
+                    router.openCall()
+                }
                 else -> {
                     // empty
                 }
@@ -97,11 +94,8 @@ class OutgoingCallFragment : Fragment(), OutgoingCallView.Presenter {
 
     override fun onCallEndButtonClicked() {
         view.disableButtons()
-        Log.d("ImsDebug", "onCallEndButtonClicked -> currentCall=${core.currentCall}")
         checkNotNull(core.currentCall).terminate()
-//        router.openCall()
     }
-
 
 
     override fun onSpeakerButtonClicked() {
@@ -129,18 +123,18 @@ class OutgoingCallFragment : Fragment(), OutgoingCallView.Presenter {
     }
 
     private fun outgoingCall(phoneNumber: String) {
-        Log.d("ImsDebug", "outgoingCall -> phoneNumber=${phoneNumber}")
         val remoteAddress = core.interpretUrl(phoneNumber) ?: return
-        val params: CallParams = core.createCallParams(null) ?: return
-        val pAssociatedURI = core.defaultAccount?.getCustomHeader("P-Associated-URI")
-        core.defaultAccount?.getCustomHeader("Contact")?.let {
-            params.addCustomHeader("Contact", it)
-        }
-        core.defaultAccount?.getCustomHeader("From")?.let {
-            params.addCustomHeader("From", it)
-        }
-        params.addCustomHeader("P-Associated-URI", pAssociatedURI)
-        params.mediaEncryption = MediaEncryption.None
+        val account = checkNotNull(core.defaultAccount)
+        val pAssociatedURI = account.getCustomHeader("P-Associated-URI")
+        val contactHeader = account.getCustomHeader("Contact")
+        val fromHeader = account.getCustomHeader("From")
+        val params: CallParams = core.createCallParams(null)?.apply {
+            addCustomHeader("Contact", contactHeader)
+            addCustomHeader("From", fromHeader)
+            addCustomHeader("P-Associated-URI", pAssociatedURI)
+            mediaEncryption = MediaEncryption.None
+            enableAudio(true)
+        } ?: return
         core.inviteAddressWithParams(remoteAddress, params)
     }
 

@@ -126,8 +126,8 @@ class AccountFragment : Fragment(), AccountView.Presenter {
         setCustomHeader("From", "<sip:$username@$domain>;tag=~UwXzKOlD\n")
         setCustomHeader(
             "Authorization",
-            "Digest realm=\"ims.mnc062.mcc250.3gppnetwork.org\", nonce=\"9b4c5fedc08296985b586acee1f16218\", algorithm=MD5, username=\"$username"
-                    + "@ims.mnc062.mcc250.3gppnetwork.org\", uri=\"sip:ims.mnc062.mcc250.3gppnetwork.org\", response=\"365b94fb3ad933759f921d7d6d88d257\", cnonce=\"HQlmMYSNfKlp66nk\", nc=00000001, qop=auth"
+            "Digest realm=\"$domain\", nonce=\"9b4c5fedc08296985b586acee1f16218\", algorithm=MD5, username=\"$username"
+                    + "@$domain\", uri=\"sip:$domain\", response=\"365b94fb3ad933759f921d7d6d88d257\", cnonce=\"HQlmMYSNfKlp66nk\", nc=00000001, qop=auth"
         )
         setCustomHeader(
             "Contact",

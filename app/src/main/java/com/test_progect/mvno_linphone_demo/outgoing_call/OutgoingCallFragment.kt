@@ -82,9 +82,8 @@ class OutgoingCallFragment : Fragment(), OutgoingCallView.Presenter {
 
     override fun onStart() {
         super.onStart()
-        arguments?.getString(ARG_PHONE_NUMBER)?.let {
-            outgoingCall(it)
-        } ?: router.openCall()
+        val phoneNumber = requireArguments().getString(ARG_PHONE_NUMBER)
+        outgoingCall(checkNotNull(phoneNumber))
     }
 
     override fun onDestroyView() {

@@ -1,6 +1,7 @@
 package com.test_progect.mvno_linphone_demo.outgoing_call
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -35,7 +36,7 @@ class OutgoingCallFragment : Fragment(), OutgoingCallView.Presenter {
             state: Call.State?,
             message: String
         ) {
-            view.setOutgoingCallState(state, message)
+            view.setOutgoingCallState(message)
             when (state) {
                 Call.State.OutgoingInit -> {
                     // First state an outgoing call will go through
@@ -58,7 +59,6 @@ class OutgoingCallFragment : Fragment(), OutgoingCallView.Presenter {
                 }
                 Call.State.Released -> {
                     view.disableButtons()
-                    Thread.sleep(2000)
                     router.openCall()
                 }
                 else -> {

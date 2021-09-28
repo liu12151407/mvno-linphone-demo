@@ -27,7 +27,6 @@ class IncomingCallFragment : Fragment(), IncomingCallView.Presenter {
             state: Call.State?,
             message: String
         ) {
-            super.onCallStateChanged(core, call, state, message)
             view.updateIncomingCallState(message)
         }
 

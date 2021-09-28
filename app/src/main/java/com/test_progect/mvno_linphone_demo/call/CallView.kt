@@ -1,7 +1,6 @@
 package com.test_progect.mvno_linphone_demo.call
 
 import android.content.SharedPreferences
-import android.telephony.PhoneNumberFormattingTextWatcher
 import android.view.MenuItem
 import androidx.core.widget.addTextChangedListener
 import com.test_progect.mvno_linphone_demo.R
@@ -10,9 +9,7 @@ import com.test_progect.mvno_linphone_demo.hideKeyboard
 
 interface CallView {
 
-    fun setRegistrationOkState(message: String)
-    fun setRegistrationFailedState(message: String)
-    fun setCallButtonAvailability(isEnabled: Boolean)
+    fun setRegistrationState(message: String)
 
     interface Presenter {
 
@@ -50,19 +47,8 @@ class CallViewImpl(
         }
     }
 
-    override fun setRegistrationOkState(message: String) {
-        binding.registrationStateView.text =
-            context.getString(R.string.linphone_registration_ok)
-    }
-
-    override fun setRegistrationFailedState(message: String) {
-        binding.registrationStateView.text =
-            context.getString(R.string.linphone_registration_failed, message)
-    }
-
-
-    override fun setCallButtonAvailability(isEnabled: Boolean) {
-        binding.callButton.isEnabled = isEnabled
+    override fun setRegistrationState(message: String) {
+        binding.registrationStateView.text = message
     }
 
     private fun initToolbar() {

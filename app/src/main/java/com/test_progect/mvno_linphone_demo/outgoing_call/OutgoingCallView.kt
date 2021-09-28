@@ -2,11 +2,10 @@ package com.test_progect.mvno_linphone_demo.outgoing_call
 
 import androidx.annotation.DrawableRes
 import com.test_progect.mvno_linphone_demo.databinding.OutgouingCallFragmentBinding
-import org.linphone.core.Call
 
 interface OutgoingCallView {
 
-    fun setOutgoingCallState(state: Call.State?, message: String)
+    fun setOutgoingCallState(message: String)
     fun enableMicAndSpeaker()
     fun disableButtons()
     fun setMicIcon(@DrawableRes id: Int)
@@ -44,8 +43,8 @@ class OutgoingCallViewImpl(
         }
     }
 
-    override fun setOutgoingCallState(state: Call.State?, message: String) {
-        binding.outgoingCallStatusView.text = state?.name ?: message
+    override fun setOutgoingCallState(message: String) {
+        binding.outgoingCallStatusView.text = message
     }
 
     override fun enableMicAndSpeaker() {

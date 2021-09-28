@@ -3,6 +3,7 @@ package com.test_progect.mvno_linphone_demo
 import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import com.test_progect.mvno_linphone_demo.account.AccountFragment
 import com.test_progect.mvno_linphone_demo.call.CallFragment
@@ -62,18 +63,29 @@ class MainActivity : AppCompatActivity(), Router {
     }
 
     override fun openCall() {
-        supportFragmentManager.commit {
-            replace(
-                binding.fragmentContainer.id,
-                CallFragment(),
-                CallFragment::class.java.name
-            )
+        val callFragment = findCallFragment()
+        if (callFragment == null) {
+            supportFragmentManager.commit {
+                replace(
+                    binding.fragmentContainer.id,
+                    CallFragment(),
+                    CallFragment::class.java.name
+                )
+            }
+        } else {
+            val fragment = checkNotNull(findOutgoingOrIncomingCallFragment())
+            supportFragmentManager.commit {
+                remove(fragment)
+                show(callFragment)
+            }
         }
     }
 
     override fun openOutgoingCall(phoneNumber: String) {
+        val fragment = checkNotNull(findCallFragment())
         supportFragmentManager.commit {
-            replace(
+            hide(fragment)
+            add(
                 binding.fragmentContainer.id,
                 createOutgoingCallFragment(phoneNumber),
                 OutgoingCallFragment::class.java.name
@@ -82,13 +94,25 @@ class MainActivity : AppCompatActivity(), Router {
     }
 
     override fun openIncomingCall() {
+        val fragment = checkNotNull(findCallFragment())
         supportFragmentManager.commit {
-            replace(
+            hide(fragment)
+            add(
                 binding.fragmentContainer.id,
                 IncomingCallFragment(),
                 IncomingCallFragment::class.java.name
             )
         }
     }
+
+    private fun findCallFragment(): Fragment? =
+        supportFragmentManager.findFragmentByTag(CallFragment::class.java.name)
+
+    private fun findOutgoingOrIncomingCallFragment(): Fragment? =
+        supportFragmentManager.run {
+            findFragmentByTag(OutgoingCallFragment::class.java.name) ?: findFragmentByTag(
+                IncomingCallFragment::class.java.name
+            )
+        }
 
 }

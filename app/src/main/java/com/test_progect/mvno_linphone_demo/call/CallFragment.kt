@@ -44,14 +44,14 @@ class CallFragment : Fragment(), CallView.Presenter {
             state: RegistrationState,
             message: String
         ) {
-            when (state) {
+            val normalizedMessage = when (state) {
                 RegistrationState.Failed, RegistrationState.Cleared ->
-                    view.setRegistrationFailedState(message)
-                RegistrationState.Ok -> view.setRegistrationOkState(message)
-                else -> {
-                    // empty
-                }
+                    requireContext().getString(R.string.linphone_registration_failed, message)
+                RegistrationState.Ok ->
+                    requireContext().getString(R.string.linphone_registration_ok)
+                else -> message
             }
+            view.setRegistrationState(normalizedMessage)
         }
 
         override fun onCallStateChanged(

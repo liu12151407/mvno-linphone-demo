@@ -21,6 +21,7 @@
     <string name="microphone_permission_request_rational">To make calls, allow Microphone permission</string>
 
     <string name="incoming_call_title">INCOMING CALL</string>
+    <string name="incoming_call_initial_state">Incoming received</string>
 
     <string name="outgoing_call_title">OUTGOING CALL</string>
 

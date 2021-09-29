@@ -1,7 +1,6 @@
 package com.test_progect.mvno_linphone_demo.call
 
 import android.content.SharedPreferences
-import android.view.View
 import androidx.core.widget.addTextChangedListener
 import com.test_progect.mvno_linphone_demo.R
 import com.test_progect.mvno_linphone_demo.databinding.CallFragmentBinding
@@ -10,7 +9,6 @@ import com.test_progect.mvno_linphone_demo.hideKeyboard
 interface CallView {
 
     fun setRegistrationState(message: String)
-    fun setCallButtonVisibility(visible: Boolean)
 
     interface Presenter {
 
@@ -50,10 +48,6 @@ class CallViewImpl(
 
     override fun setRegistrationState(message: String) {
         binding.registrationStateView.text = message
-    }
-
-    override fun setCallButtonVisibility(visible: Boolean) {
-        binding.callButton.visibility = if (visible) View.VISIBLE else View.GONE
     }
 
     private fun clearFocus() {

@@ -32,6 +32,7 @@ class IncomingCallViewImpl(
         binding.callEndButton.setOnClickListener {
             presenter.onCallEndButtonClicked()
         }
+        binding.incomingCallStateView.text = context.getString(R.string.incoming_call_initial_state)
     }
 
     override fun disableCallAnswerButton() {

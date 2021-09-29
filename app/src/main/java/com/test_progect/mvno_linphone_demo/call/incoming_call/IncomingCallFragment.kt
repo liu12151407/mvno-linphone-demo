@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.commit
 import com.test_progect.mvno_linphone_demo.MainActivity
 import com.test_progect.mvno_linphone_demo.call.CallRouter
 import com.test_progect.mvno_linphone_demo.databinding.IncomingCallFragmentBinding
@@ -73,7 +72,7 @@ class IncomingCallFragment : Fragment(), IncomingCallView.Presenter {
     override fun onCallEndButtonClicked() {
         view.disableCallEndButton()
         core.currentCall?.terminate()
-        childFragmentManager.commit { remove(this@IncomingCallFragment) }
+        router.closeChildFragment(this@IncomingCallFragment)
     }
 
 }

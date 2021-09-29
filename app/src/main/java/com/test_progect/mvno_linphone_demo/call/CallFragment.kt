@@ -121,21 +121,18 @@ class CallFragment : Fragment(), CallView.Presenter, CallRouter {
     }
 
     override fun openOutgoingCall(phoneNumber: String) {
-        view.setCallButtonVisibility(false)
         childFragmentManager.commit {
             replace(binding.callsContainer.id, createOutgoingCallFragment(phoneNumber))
         }
     }
 
     override fun openIncomingCall() {
-        view.setCallButtonVisibility(false)
         childFragmentManager.commit {
             replace(binding.root.id, IncomingCallFragment())
         }
     }
 
     override fun closeChildFragment(fragment: Fragment) {
-        view.setCallButtonVisibility(true)
         childFragmentManager.commit { remove(fragment) }
     }
 

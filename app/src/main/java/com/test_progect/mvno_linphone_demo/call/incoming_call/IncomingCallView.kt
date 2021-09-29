@@ -1,4 +1,4 @@
-package com.test_progect.mvno_linphone_demo.incoming_call
+package com.test_progect.mvno_linphone_demo.call.incoming_call
 
 import com.test_progect.mvno_linphone_demo.R
 import com.test_progect.mvno_linphone_demo.databinding.IncomingCallFragmentBinding

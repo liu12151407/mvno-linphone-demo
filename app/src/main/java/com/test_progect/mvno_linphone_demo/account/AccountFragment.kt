@@ -1,47 +1,27 @@
 package com.test_progect.mvno_linphone_demo.account
 
-import android.annotation.SuppressLint
-import android.content.SharedPreferences
 import android.os.Bundle
-import android.provider.Settings.Secure
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.edit
+import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import com.test_progect.mvno_linphone_demo.MainActivity
+import com.test_progect.mvno_linphone_demo.R
 import com.test_progect.mvno_linphone_demo.Router
+import com.test_progect.mvno_linphone_demo.call.CallFragment
+import com.test_progect.mvno_linphone_demo.chat.ChatFragment
 import com.test_progect.mvno_linphone_demo.databinding.AccountFragmentBinding
-import com.test_progect.mvno_linphone_demo.validatePhoneNumber
-import org.linphone.core.*
-import org.linphone.core.tools.Log
+import com.test_progect.mvno_linphone_demo.hideKeyboard
+import org.linphone.core.Core
 
-class AccountFragment : Fragment(), AccountView.Presenter {
+class AccountFragment : Fragment() {
 
-    private lateinit var view: AccountView
     private var uncheckedBinding: AccountFragmentBinding? = null
     private val binding: AccountFragmentBinding get() = checkNotNull(uncheckedBinding)
     private val router: Router by lazy { requireActivity() as Router }
-    private val sharedPreferences: SharedPreferences by lazy { (requireActivity() as MainActivity).sharedPreferences }
     private val core: Core by lazy { (requireActivity() as MainActivity).core }
-    private val coreListener = object : CoreListenerStub() {
-
-        override fun onAccountRegistrationStateChanged(
-            core: Core,
-            account: Account,
-            state: RegistrationState,
-            message: String
-        ) {
-            view.setRegistrationStateMessage(message)
-            if (state == RegistrationState.Failed || state == RegistrationState.Cleared) {
-                view.setRegistrationFailedState(message)
-            } else if (state == RegistrationState.Ok) {
-                view.setRegistrationOkState(message)
-                router.openCall()
-            }
-        }
-
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -49,92 +29,90 @@ class AccountFragment : Fragment(), AccountView.Presenter {
         savedInstanceState: Bundle?
     ): View? {
         uncheckedBinding = AccountFragmentBinding.inflate(inflater, container, false)
-        view = AccountViewImpl(binding, sharedPreferences, this, core.version)
+        initView()
         return binding.root
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        core.removeListener(coreListener)
+    override fun onStart() {
+        super.onStart()
+        if (childFragmentManager.fragments.isEmpty()) {
+            openCall()
+        }
     }
 
-    override fun onRegistrationButtonClicked(
-        username: String,
-        phoneNumber: String,
-        domain: String,
-        password: String,
-        proxy: String,
-        transportType: TransportType
-    ) {
-        saveAuthInfo(username, phoneNumber, domain, password, proxy)
-        val isPhoneNumberValid = validatePhoneNumber(phoneNumber, requireContext())
-        if (isPhoneNumberValid) {
-            val authInfo = Factory.instance().createAuthInfo(
-                username,
-                "$username@$domain",
-                password,
-                null,
-                null,
-                "@$domain"
-            )
-            val identity = Factory.instance().createAddress("sip:$username@$domain")
-            val address = Factory.instance().createAddress("sip:$proxy")?.apply {
-                transport = transportType
+    private fun openCall() {
+        val transaction = childFragmentManager.beginTransaction()
+        val fragment = childFragmentManager.findFragmentByTag(CALL_TAB_TAG)
+        if (fragment == null) {
+            transaction.add(binding.accountContent.id, CallFragment(), CALL_TAB_TAG)
+        } else {
+            transaction.show(fragment)
+        }
+        childFragmentManager.fragments.find { it.tag != CALL_TAB_TAG }?.let {
+            transaction.hide(it)
+        }
+        transaction.commit()
+    }
+
+    private fun openChat() {
+        val transaction = childFragmentManager.beginTransaction()
+        val fragment = childFragmentManager.findFragmentByTag(CHAT_TAB_TAG)
+        if (fragment == null) {
+            transaction.add(binding.accountContent.id, ChatFragment(), CHAT_TAB_TAG)
+        } else {
+            transaction.show(fragment)
+        }
+        childFragmentManager.fragments.find { it.tag != CHAT_TAB_TAG }?.let {
+            transaction.hide(it)
+        }
+        transaction.commit()
+    }
+
+    private fun initView() {
+        binding.toolbar.apply {
+            inflateMenu(R.menu.call_menu)
+            setOnMenuItemClickListener {
+                onMenuItemClicked(it)
             }
-            val accountParams = core.createAccountParams().apply {
-                identityAddress = identity
-                serverAddress = address
-                registerEnabled = true
-            }
-            val account = core.createAccount(accountParams).apply {
-                patchProxy(username, phoneNumber, domain)
-                addListener { _, state, message ->
-                    Log.i("[Account] Registration state changed: $state, $message")
+        }
+        binding.bottomNavigationBar.setOnItemSelectedListener {
+            binding.root.hideKeyboard()
+            when (it.itemId) {
+                R.id.callTab -> {
+                    setToolbarTitle(R.string.call_screen_title)
+                    openCall()
+                }
+                R.id.chatTab -> {
+                    setToolbarTitle(R.string.chat_screen_title)
+                    openChat()
                 }
             }
-            core.apply {
-                addAuthInfo(authInfo)
-                addAccount(account)
-                defaultAccount = account
-                addListener(coreListener)
-                start()
+            true
+        }
+    }
+
+    private fun setToolbarTitle(@StringRes title: Int) {
+        binding.toolbarTitle.setText(title)
+    }
+
+    private fun onMenuItemClicked(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.logoutMenuItem -> {
+                core.currentCall?.terminate()
+                core.defaultAccount?.let { account ->
+                    core.removeAccount(account)
+                    core.clearAccounts()
+                    core.clearAllAuthInfo()
+                }
+                router.openRegistration()
             }
         }
+        return true
     }
 
-    private fun saveAuthInfo(
-        username: String,
-        phoneNumber: String,
-        domain: String,
-        password: String,
-        proxy: String,
-    ) {
-        sharedPreferences.edit {
-            putString(PREF_USER_NAME, username)
-            putString(PREF_PHONE_NUMBER, phoneNumber)
-            putString(PREF_DOMAIN, domain)
-            putString(PREF_PASSWORD, password)
-            putString(PREF_PROXY, proxy)
-        }
-    }
-
-
-    @SuppressLint("HardwareIds")
-    private fun Account.patchProxy(username: String, phoneNumber: String, domain: String) {
-        val deviceId = Secure.getString(requireActivity().contentResolver, Secure.ANDROID_ID)
-        setCustomHeader("To", "sip:$username@$domain")
-        setCustomHeader("From", "<sip:$username@$domain>;tag=~UwXzKOlD\n")
-        setCustomHeader(
-            "Authorization",
-            "Digest realm=\"$domain\", nonce=\"9b4c5fedc08296985b586acee1f16218\", algorithm=MD5, username=\"$username"
-                    + "@$domain\", uri=\"sip:$domain\", response=\"365b94fb3ad933759f921d7d6d88d257\", cnonce=\"HQlmMYSNfKlp66nk\", nc=00000001, qop=auth"
-        )
-        setCustomHeader(
-            "Contact",
-            ("<sip:$phoneNumber@172.30.147.209:43530;"
-                    + "transport=udp;pn-provider=tinkoff;pn-prid=$deviceId;>;"
-                    + "gr=urn;+g.3gpp.smsip;+sip.instance=\"<urn:uuid:d1644492-1103-00f8-a4eb-c7a87d3b41f7>\"")
-        )
+    companion object {
+        private val CALL_TAB_TAG = CallFragment::class.java.name
+        private val CHAT_TAB_TAG = ChatFragment::class.java.name
     }
 
 }

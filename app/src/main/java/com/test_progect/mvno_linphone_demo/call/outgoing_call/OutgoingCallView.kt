@@ -1,4 +1,4 @@
-package com.test_progect.mvno_linphone_demo.outgoing_call
+package com.test_progect.mvno_linphone_demo.call.outgoing_call
 
 import androidx.annotation.DrawableRes
 import com.test_progect.mvno_linphone_demo.databinding.OutgouingCallFragmentBinding

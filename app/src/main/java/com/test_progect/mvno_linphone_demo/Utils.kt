@@ -6,6 +6,9 @@ import android.view.View
 import android.view.WindowInsets
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import androidx.annotation.ColorInt
+import androidx.annotation.ColorRes
+import androidx.core.content.ContextCompat
 
 private const val PHONE_NUMBER_LENGTH = 12
 
@@ -24,6 +27,10 @@ fun View.hideKeyboard() {
         windowInsetsController?.hide(WindowInsets.Type.ime())
     }
 }
+
+@ColorInt
+fun Context.getColorCompat(@ColorRes colorResId: Int): Int =
+    ContextCompat.getColor(this, colorResId)
 
 private inline fun <reified T> Context.getSystemManager(name: String): T =
     getSystemService(name) as T

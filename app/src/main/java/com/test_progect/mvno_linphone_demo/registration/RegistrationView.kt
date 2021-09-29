@@ -1,4 +1,4 @@
-package com.test_progect.mvno_linphone_demo.account
+package com.test_progect.mvno_linphone_demo.registration
 
 import android.content.SharedPreferences
 import android.widget.AdapterView
@@ -6,7 +6,7 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import androidx.core.view.children
 import com.test_progect.mvno_linphone_demo.R
-import com.test_progect.mvno_linphone_demo.databinding.AccountFragmentBinding
+import com.test_progect.mvno_linphone_demo.databinding.RegistrationFragmentBinding
 import com.test_progect.mvno_linphone_demo.hideKeyboard
 import org.linphone.core.TransportType
 
@@ -16,7 +16,7 @@ const val PREF_DOMAIN = "PREF_DOMAIN"
 const val PREF_PASSWORD = "PREF_PASSWORD"
 const val PREF_PROXY = "PREF_PROXY"
 
-interface AccountView {
+interface RegistrationView {
 
     fun setRegistrationStateMessage(message: String)
     fun setRegistrationFailedState(message: String)
@@ -36,12 +36,12 @@ interface AccountView {
 
 }
 
-class AccountViewImpl(
-    private val binding: AccountFragmentBinding,
+class RegistrationViewImpl(
+    private val binding: RegistrationFragmentBinding,
     private val sharedPreferences: SharedPreferences,
-    private val presenter: AccountView.Presenter,
+    private val presenter: RegistrationView.Presenter,
     coreVersion: String,
-) : AccountView {
+) : RegistrationView {
 
     private val context = binding.root.context
     private val username: String get() = binding.imsiInputLayout.editText?.text.toString()

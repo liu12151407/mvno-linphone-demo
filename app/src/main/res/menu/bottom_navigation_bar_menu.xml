@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/callTab"
+        android:enabled="true"
+        android:icon="@drawable/ic_call_tab"
+        android:title="Call"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/chatTab"
+        android:enabled="true"
+        android:icon="@drawable/ic_chat_tab"
+        android:title="Chat"
+        app:showAsAction="ifRoom" />
+
+</menu>

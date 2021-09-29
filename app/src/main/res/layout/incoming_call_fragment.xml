@@ -4,26 +4,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.google.android.material.appbar.AppBarLayout
+    <TextView
         android:layout_width="match_parent"
-        android:layout_height="?actionBarSize">
-
-        <androidx.appcompat.widget.Toolbar
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:text="@string/incoming_call"
-                android:textAppearance="@style/TextAppearance.App.Medium.Contrast"
-                android:textSize="20sp" />
-
-        </androidx.appcompat.widget.Toolbar>
-
-    </com.google.android.material.appbar.AppBarLayout>
+        android:layout_height="?actionBarSize"
+        android:layout_gravity="top"
+        android:background="@color/dark_grey"
+        android:gravity="center"
+        android:text="@string/incoming_call_title"
+        android:textAppearance="@style/TextAppearance.App.Medium.Contrast"
+        android:textSize="20sp" />
 
     <TextView
         android:id="@+id/incoming_call_state_view"

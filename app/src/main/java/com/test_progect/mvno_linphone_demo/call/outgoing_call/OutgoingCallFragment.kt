@@ -1,14 +1,14 @@
-package com.test_progect.mvno_linphone_demo.outgoing_call
+package com.test_progect.mvno_linphone_demo.call.outgoing_call
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import com.test_progect.mvno_linphone_demo.MainActivity
 import com.test_progect.mvno_linphone_demo.R
-import com.test_progect.mvno_linphone_demo.Router
+import com.test_progect.mvno_linphone_demo.call.CallRouter
 import com.test_progect.mvno_linphone_demo.databinding.OutgouingCallFragmentBinding
 import org.linphone.core.*
 
@@ -26,7 +26,7 @@ class OutgoingCallFragment : Fragment(), OutgoingCallView.Presenter {
     private lateinit var view: OutgoingCallView
     private var uncheckedBinding: OutgouingCallFragmentBinding? = null
     private val binding: OutgouingCallFragmentBinding get() = checkNotNull(uncheckedBinding)
-    private val router: Router by lazy { requireActivity() as Router }
+    private val router: CallRouter by lazy { parentFragment as CallRouter }
     private val core: Core by lazy { (requireActivity() as MainActivity).core }
     private val coreListener = object : CoreListenerStub() {
 
@@ -59,7 +59,7 @@ class OutgoingCallFragment : Fragment(), OutgoingCallView.Presenter {
                 }
                 Call.State.Released -> {
                     view.disableButtons()
-                    router.openCall()
+                    router.closeChildFragment(this@OutgoingCallFragment)
                 }
                 else -> {
                     // empty
@@ -67,6 +67,18 @@ class OutgoingCallFragment : Fragment(), OutgoingCallView.Presenter {
             }
         }
 
+    }
+    private var call: Call? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        requireActivity().onBackPressedDispatcher.addCallback(
+            this,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    // empty
+                }
+            })
     }
 
     override fun onCreateView(
@@ -89,6 +101,7 @@ class OutgoingCallFragment : Fragment(), OutgoingCallView.Presenter {
     override fun onDestroyView() {
         super.onDestroyView()
         core.removeListener(coreListener)
+        call?.terminate()
     }
 
     override fun onCallEndButtonClicked() {
@@ -134,7 +147,7 @@ class OutgoingCallFragment : Fragment(), OutgoingCallView.Presenter {
             mediaEncryption = MediaEncryption.None
             enableAudio(true)
         } ?: return
-        core.inviteAddressWithParams(remoteAddress, params)
+        core.inviteAddressWithParams(remoteAddress, params).also { call = it }
     }
 
 }

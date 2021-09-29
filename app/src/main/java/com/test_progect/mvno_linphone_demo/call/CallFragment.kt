@@ -8,18 +8,20 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.core.content.edit
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.commit
 import com.test_progect.mvno_linphone_demo.MainActivity
 import com.test_progect.mvno_linphone_demo.R
-import com.test_progect.mvno_linphone_demo.Router
+import com.test_progect.mvno_linphone_demo.call.incoming_call.IncomingCallFragment
+import com.test_progect.mvno_linphone_demo.call.outgoing_call.createOutgoingCallFragment
 import com.test_progect.mvno_linphone_demo.databinding.CallFragmentBinding
 import com.test_progect.mvno_linphone_demo.validatePhoneNumber
 import org.linphone.core.*
@@ -27,14 +29,13 @@ import org.linphone.core.*
 
 const val PREF_LAST_OUTGOING_CAL = "PREF_LAST_OUTGOING_CAL"
 
-class CallFragment : Fragment(), CallView.Presenter {
+class CallFragment : Fragment(), CallView.Presenter, CallRouter {
 
     private lateinit var view: CallView
     private var phoneNumber: String = ""
     private var uncheckedBinding: CallFragmentBinding? = null
     private val binding: CallFragmentBinding get() = checkNotNull(uncheckedBinding)
     private val sharedPreferences: SharedPreferences get() = (requireActivity() as MainActivity).sharedPreferences
-    private val router: Router by lazy { requireActivity() as Router }
     private val core: Core by lazy { (requireActivity() as MainActivity).core }
     private val coreListener = object : CoreListenerStub() {
 
@@ -61,14 +62,14 @@ class CallFragment : Fragment(), CallView.Presenter {
             message: String
         ) {
             if (state == Call.State.IncomingReceived) {
-                router.openIncomingCall()
+                openIncomingCall()
             }
         }
     }
     private val activityResultLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) {
-                router.openOutgoingCall(phoneNumber)
+                openOutgoingCall(phoneNumber)
             } else {
                 if (shouldShowRequestPermissionRationale(RECORD_AUDIO)) {
                     showAlertDialog(R.string.microphone_permission_request_rational)
@@ -77,6 +78,17 @@ class CallFragment : Fragment(), CallView.Presenter {
                 }
             }
         }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        requireActivity().onBackPressedDispatcher.addCallback(
+            this,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    // empty
+                }
+            })
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -101,23 +113,30 @@ class CallFragment : Fragment(), CallView.Presenter {
             if (
                 checkSelfPermission(requireContext(), RECORD_AUDIO) == PERMISSION_GRANTED
             ) {
-                router.openOutgoingCall(phoneNumber)
+                openOutgoingCall(phoneNumber)
             } else {
                 activityResultLauncher.launch(RECORD_AUDIO)
             }
         }
     }
 
-    override fun onMenuItemClicked(item: MenuItem): Boolean {
-        if (item.itemId == R.id.logoutMenuItem) {
-            core.defaultAccount?.let { account ->
-                core.removeAccount(account)
-                core.clearAccounts()
-                core.clearAllAuthInfo()
-            }
-            router.openAccount()
+    override fun openOutgoingCall(phoneNumber: String) {
+        view.setCallButtonVisibility(false)
+        childFragmentManager.commit {
+            replace(binding.callsContainer.id, createOutgoingCallFragment(phoneNumber))
         }
-        return true
+    }
+
+    override fun openIncomingCall() {
+        view.setCallButtonVisibility(false)
+        childFragmentManager.commit {
+            replace(binding.root.id, IncomingCallFragment())
+        }
+    }
+
+    override fun closeChildFragment(fragment: Fragment) {
+        view.setCallButtonVisibility(true)
+        childFragmentManager.commit { remove(fragment) }
     }
 
     private fun showAlertDialog(@StringRes message: Int) {

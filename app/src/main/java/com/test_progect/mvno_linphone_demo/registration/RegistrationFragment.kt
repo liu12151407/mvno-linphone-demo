@@ -67,36 +67,38 @@ class RegistrationFragment : Fragment(), RegistrationView.Presenter {
         transportType: TransportType
     ) {
         saveAuthInfo(username, phoneNumber, domain, password, proxy)
-        val isPhoneNumberValid = validatePhoneNumber(phoneNumber, requireContext())
-        if (isPhoneNumberValid) {
-            val authInfo = Factory.instance().createAuthInfo(
-                username,
-                "$username@$domain",
-                password,
-                null,
-                null,
-                "@$domain"
-            )
-            val identity = Factory.instance().createAddress("sip:$username@$domain")
-            val address = Factory.instance().createAddress("sip:$proxy")
-            address?.transport = transportType
-            val accountParams = core.createAccountParams().apply {
-                identityAddress = identity
-                serverAddress = address
-                registerEnabled = true
-            }
-            val account = core.createAccount(accountParams)
-            account.patchProxy(username, phoneNumber, domain)
-            account.addListener { _, state, message ->
-                Log.i("[Account] Registration state changed: $state, $message")
-            }
-            core.apply {
-                addAuthInfo(authInfo)
-                addAccount(account)
-                defaultAccount = account
-                addListener(coreListener)
-                start()
-            }
+        val isValid = validatePhoneNumber(phoneNumber)
+        if (isValid.not()) {
+            view.showInvalidPhoneNumberToast()
+            return
+        }
+        val authInfo = Factory.instance().createAuthInfo(
+            username,
+            "$username@$domain",
+            password,
+            null,
+            null,
+            "@$domain"
+        )
+        val identity = Factory.instance().createAddress("sip:$username@$domain")
+        val address = Factory.instance().createAddress("sip:$proxy")
+        address?.transport = transportType
+        val accountParams = core.createAccountParams().apply {
+            identityAddress = identity
+            serverAddress = address
+            registerEnabled = true
+        }
+        val account = core.createAccount(accountParams)
+        account.patchProxy(username, phoneNumber, domain)
+        account.addListener { _, state, message ->
+            Log.i("[Account] Registration state changed: $state, $message")
+        }
+        core.apply {
+            addAuthInfo(authInfo)
+            addAccount(account)
+            defaultAccount = account
+            addListener(coreListener)
+            start()
         }
     }
 

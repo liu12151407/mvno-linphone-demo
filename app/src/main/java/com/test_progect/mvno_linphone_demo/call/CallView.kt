@@ -3,10 +3,12 @@ package com.test_progect.mvno_linphone_demo.call
 import android.content.SharedPreferences
 import androidx.core.widget.addTextChangedListener
 import com.test_progect.mvno_linphone_demo.R
+import com.test_progect.mvno_linphone_demo.core_ui.ToastView
+import com.test_progect.mvno_linphone_demo.core_ui.ToastViewImpl
 import com.test_progect.mvno_linphone_demo.databinding.CallFragmentBinding
 import com.test_progect.mvno_linphone_demo.hideKeyboard
 
-interface CallView {
+interface CallView : ToastView {
 
     fun setRegistrationState(message: String)
 
@@ -22,7 +24,8 @@ class CallViewImpl(
     private val binding: CallFragmentBinding,
     private val presenter: CallView.Presenter,
     sharedPreferences: SharedPreferences,
-) : CallView {
+) : CallView,
+    ToastView by ToastViewImpl(binding.root.context) {
 
     private val context = binding.root.context
     private val phoneNumber: String

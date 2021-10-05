@@ -6,6 +6,8 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import androidx.core.view.children
 import com.test_progect.mvno_linphone_demo.R
+import com.test_progect.mvno_linphone_demo.core_ui.ToastView
+import com.test_progect.mvno_linphone_demo.core_ui.ToastViewImpl
 import com.test_progect.mvno_linphone_demo.databinding.RegistrationFragmentBinding
 import com.test_progect.mvno_linphone_demo.hideKeyboard
 import org.linphone.core.TransportType
@@ -16,7 +18,7 @@ const val PREF_DOMAIN = "PREF_DOMAIN"
 const val PREF_PASSWORD = "PREF_PASSWORD"
 const val PREF_PROXY = "PREF_PROXY"
 
-interface RegistrationView {
+interface RegistrationView : ToastView {
 
     fun setRegistrationStateMessage(message: String)
     fun setRegistrationFailedState(message: String)
@@ -41,7 +43,8 @@ class RegistrationViewImpl(
     private val sharedPreferences: SharedPreferences,
     private val presenter: RegistrationView.Presenter,
     coreVersion: String,
-) : RegistrationView {
+) : RegistrationView,
+    ToastView by ToastViewImpl(binding.root.context) {
 
     private val context = binding.root.context
     private val username: String get() = binding.imsiInputLayout.editText?.text.toString()

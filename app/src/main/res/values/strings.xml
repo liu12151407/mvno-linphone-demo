@@ -13,7 +13,6 @@
     <string name="account_password_view_hint">Password</string>
     <string name="account_proxy_view_hint">Proxy Address</string>
     <string name="account_registration_button">Registration</string>
-    <string name="invalid_phone_number_format" tools:ignore="Typos">Number should be in format: +7 XXX XX XX</string>
 
     <string name="call_screen_title">CALL</string>
     <string name="call_button">Call</string>
@@ -26,6 +25,9 @@
     <string name="outgoing_call_title">OUTGOING CALL</string>
 
     <string name="chat_screen_title">CHAT</string>
+
+    <string name="toast_invalid_phone_format" tools:ignore="Typos">Number should be in format: +7 XXX XX XX</string>
+    <string name="toast_remote_address_error">Can\'t create remote address from phone number</string>
 
 
 </resources>

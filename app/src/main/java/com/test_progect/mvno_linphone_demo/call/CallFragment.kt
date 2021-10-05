@@ -106,18 +106,24 @@ class CallFragment : Fragment(), CallView.Presenter, CallRouter {
     }
 
     override fun onCallButtonCLicked(phoneNumber: String) {
-        val isPhoneNumberValid = validatePhoneNumber(phoneNumber, requireContext())
-        if (isPhoneNumberValid) {
-            this.phoneNumber = phoneNumber
-            sharedPreferences.edit { putString(PREF_LAST_OUTGOING_CAL, phoneNumber) }
-            if (
-                checkSelfPermission(requireContext(), RECORD_AUDIO) == PERMISSION_GRANTED
-            ) {
-                openOutgoingCall(phoneNumber)
-            } else {
-                activityResultLauncher.launch(RECORD_AUDIO)
-            }
+        val isValid = validatePhoneNumber(phoneNumber)
+        if (isValid.not()) {
+            view.showInvalidPhoneNumberToast()
+            return
         }
+        savePhoneNumber(phoneNumber)
+        val permissionGranted =
+            checkSelfPermission(requireContext(), RECORD_AUDIO) == PERMISSION_GRANTED
+        if (permissionGranted) {
+            openOutgoingCall(phoneNumber)
+        } else {
+            activityResultLauncher.launch(RECORD_AUDIO)
+        }
+    }
+
+    private fun savePhoneNumber(phoneNumber: String) {
+        this.phoneNumber = phoneNumber
+        sharedPreferences.edit { putString(PREF_LAST_OUTGOING_CAL, phoneNumber) }
     }
 
     override fun openOutgoingCall(phoneNumber: String) {

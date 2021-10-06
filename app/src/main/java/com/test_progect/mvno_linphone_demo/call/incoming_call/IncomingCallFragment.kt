@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
+import com.test_progect.mvno_linphone_demo.LinphoneManager
 import com.test_progect.mvno_linphone_demo.MainActivity
 import com.test_progect.mvno_linphone_demo.call.CallRouter
 import com.test_progect.mvno_linphone_demo.databinding.IncomingCallFragmentBinding
@@ -19,7 +20,9 @@ class IncomingCallFragment : Fragment(), IncomingCallView.Presenter {
     private var uncheckedBinding: IncomingCallFragmentBinding? = null
     private val binding: IncomingCallFragmentBinding get() = checkNotNull(uncheckedBinding)
     private val router: CallRouter by lazy { parentFragment as CallRouter }
-    private val core: Core by lazy { (requireActivity() as MainActivity).core }
+    private val linphoneManager: LinphoneManager by lazy {
+        (requireActivity() as MainActivity).linphoneManager
+    }
     private val coreListener = object : CoreListenerStub() {
 
         override fun onCallStateChanged(
@@ -54,24 +57,24 @@ class IncomingCallFragment : Fragment(), IncomingCallView.Presenter {
     ): View? {
         uncheckedBinding = IncomingCallFragmentBinding.inflate(inflater, container, false)
         view = IncomingCallViewImpl(binding, this)
-        core.addListener(coreListener)
+        linphoneManager.addCoreListenerStub(coreListener)
         return binding.root
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        core.removeListener(coreListener)
-        core.currentCall?.terminate()
+        linphoneManager.terminateCurrentCall()
+        linphoneManager.removeCoreListenerStub(coreListener)
     }
 
     override fun onCallAnswerButtonClicked() {
         view.disableCallAnswerButton()
-        core.currentCall?.accept()
+        linphoneManager.acceptCall()
     }
 
     override fun onCallEndButtonClicked() {
         view.disableCallEndButton()
-        core.currentCall?.terminate()
+        linphoneManager.terminateCurrentCall()
         router.closeChildFragment(this@IncomingCallFragment)
     }
 

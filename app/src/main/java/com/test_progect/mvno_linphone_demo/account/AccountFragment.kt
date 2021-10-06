@@ -7,21 +7,19 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
-import com.test_progect.mvno_linphone_demo.MainActivity
-import com.test_progect.mvno_linphone_demo.R
-import com.test_progect.mvno_linphone_demo.Router
+import com.test_progect.mvno_linphone_demo.*
 import com.test_progect.mvno_linphone_demo.call.CallFragment
 import com.test_progect.mvno_linphone_demo.chat.ChatFragment
 import com.test_progect.mvno_linphone_demo.databinding.AccountFragmentBinding
-import com.test_progect.mvno_linphone_demo.hideKeyboard
-import org.linphone.core.Core
 
 class AccountFragment : Fragment() {
 
     private var uncheckedBinding: AccountFragmentBinding? = null
     private val binding: AccountFragmentBinding get() = checkNotNull(uncheckedBinding)
     private val router: Router by lazy { requireActivity() as Router }
-    private val core: Core by lazy { (requireActivity() as MainActivity).core }
+    private val linphoneManager: LinphoneManager by lazy {
+        (requireActivity() as MainActivity).linphoneManager
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -98,12 +96,7 @@ class AccountFragment : Fragment() {
     private fun onMenuItemClicked(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.logoutMenuItem -> {
-                core.currentCall?.terminate()
-                core.defaultAccount?.let { account ->
-                    core.removeAccount(account)
-                    core.clearAccounts()
-                    core.clearAllAuthInfo()
-                }
+                linphoneManager.logoutAccount()
                 router.openRegistration()
             }
         }

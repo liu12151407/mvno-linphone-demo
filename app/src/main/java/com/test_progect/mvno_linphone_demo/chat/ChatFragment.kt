@@ -21,7 +21,9 @@ class ChatFragment : Fragment(), ChatView.Presenter {
     private val sharedPreferences: SharedPreferences by lazy { (requireActivity() as MainActivity).sharedPreferences }
     private val phoneNumber: String
         get() = binding.recipientPhoneNumberInput.editText?.text?.toString() ?: ""
-    private val core: Core by lazy { (requireActivity() as MainActivity).core }
+    private val linphoneManager: LinphoneManager by lazy {
+        (requireActivity() as MainActivity).linphoneManager
+    }
     private val router: Router by lazy { requireActivity() as Router }
     private val coreListener = object : CoreListenerStub() {
 
@@ -89,13 +91,13 @@ class ChatFragment : Fragment(), ChatView.Presenter {
     ): View? {
         uncheckedBinding = ChatFragmentBinding.inflate(inflater, container, false)
         view = ChatViewImpl(binding, this, sharedPreferences)
-        core.addListener(coreListener)
+        linphoneManager.addCoreListenerStub(coreListener)
         return binding.root
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        core.removeListener(coreListener)
+        linphoneManager.removeCoreListenerStub(coreListener)
     }
 
     override fun onSendMessageClick(message: String) {
@@ -111,47 +113,20 @@ class ChatFragment : Fragment(), ChatView.Presenter {
     private fun sendMessage(message: String) {
         if (chatRoom == null) createChatRoom()
         chatRoom?.let {
-            it.createMessageFromUtf8(message).sendCustom()
+            linphoneManager.sendMessage(it, message, chatMessageListener) { chatMessage, content ->
+                view.addMessage(chatMessage, content)
+            }
             view.clearMessageInput()
         }
     }
 
     private fun createChatRoom() {
-        val params = core.createDefaultChatRoomParams().setDefaultParams()
-        val remoteAddress = core.interpretUrl(phoneNumber)
-        if (remoteAddress == null) {
+        chatRoom = linphoneManager.createChatRoom(phoneNumber)
+        if (chatRoom == null) {
             view.showRemoteAddressErrorToast()
             return
         }
-        val localAddress = core.defaultAccount?.params?.identityAddress
-        chatRoom = core.createChatRoom(params, localAddress, arrayOf(remoteAddress))
         view.disableRecipientInput()
-    }
-
-    private fun ChatMessage.sendCustom() =
-        apply {
-            addListener(chatMessageListener)
-            contents.forEach { view.addMessage(this, it) }
-            addCustomHeaders()
-            send()
-        }
-
-    private fun ChatMessage.addCustomHeaders() {
-        val account = checkNotNull(core.defaultAccount)
-        val pAssociatedURI = account.getCustomHeader("P-Associated-URI")
-        val contactHeader = account.getCustomHeader("Contact")
-        val fromHeader = account.getCustomHeader("From")
-        addCustomHeader("P-Associated-URI", pAssociatedURI)
-        addCustomHeader("Contact", contactHeader)
-        addCustomHeader("From", fromHeader)
-
-    }
-
-    private fun ChatRoomParams.setDefaultParams(): ChatRoomParams {
-        backend = ChatRoomBackend.Basic
-        enableEncryption(false)
-        enableGroup(false)
-        return if (isValid) this else throw IllegalArgumentException("Encryption or Group chats are not supported")
     }
 
 }

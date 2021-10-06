@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
+import com.test_progect.mvno_linphone_demo.LinphoneManager
 import com.test_progect.mvno_linphone_demo.MainActivity
 import com.test_progect.mvno_linphone_demo.R
 import com.test_progect.mvno_linphone_demo.call.CallRouter
@@ -27,7 +28,9 @@ class OutgoingCallFragment : Fragment(), OutgoingCallView.Presenter {
     private var uncheckedBinding: OutgouingCallFragmentBinding? = null
     private val binding: OutgouingCallFragmentBinding get() = checkNotNull(uncheckedBinding)
     private val router: CallRouter by lazy { parentFragment as CallRouter }
-    private val core: Core by lazy { (requireActivity() as MainActivity).core }
+    private val linphoneManager: LinphoneManager by lazy {
+        (requireActivity() as MainActivity).linphoneManager
+    }
     private val coreListener = object : CoreListenerStub() {
 
         override fun onCallStateChanged(
@@ -87,7 +90,7 @@ class OutgoingCallFragment : Fragment(), OutgoingCallView.Presenter {
         savedInstanceState: Bundle?
     ): View? {
         uncheckedBinding = OutgouingCallFragmentBinding.inflate(inflater, container, false)
-        core.addListener(coreListener)
+        linphoneManager.addCoreListenerStub(coreListener)
         view = OutgoingCallViewImpl(binding, this)
         return binding.root
     }
@@ -95,22 +98,23 @@ class OutgoingCallFragment : Fragment(), OutgoingCallView.Presenter {
     override fun onStart() {
         super.onStart()
         val phoneNumber = requireArguments().getString(ARG_PHONE_NUMBER)
-        outgoingCall(checkNotNull(phoneNumber))
+        linphoneManager.initOutgoingCall(checkNotNull(phoneNumber))
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        core.removeListener(coreListener)
+        linphoneManager.removeCoreListenerStub(coreListener)
         call?.terminate()
     }
 
     override fun onCallEndButtonClicked() {
         view.disableButtons()
-        checkNotNull(core.currentCall).terminate()
+        linphoneManager.terminateCurrentCall()
     }
 
 
     override fun onSpeakerButtonClicked() {
+        val core = linphoneManager.core
         val currentAudioDevice = core.currentCall?.outputAudioDevice
         val speakerEnabled = currentAudioDevice?.type == AudioDevice.Type.Speaker
         for (audioDevice in core.audioDevices) {
@@ -127,27 +131,12 @@ class OutgoingCallFragment : Fragment(), OutgoingCallView.Presenter {
     }
 
     override fun onMicButtonClicked() {
+        val core = linphoneManager.core
         core.enableMic(!core.micEnabled())
         when (core.micEnabled()) {
             true -> view.setMicIcon(R.drawable.ic_mic)
             false -> view.setMicIcon(R.drawable.ic_mic_off)
         }
-    }
-
-    private fun outgoingCall(phoneNumber: String) {
-        val remoteAddress = core.interpretUrl(phoneNumber) ?: return
-        val account = checkNotNull(core.defaultAccount)
-        val pAssociatedURI = account.getCustomHeader("P-Associated-URI")
-        val contactHeader = account.getCustomHeader("Contact")
-        val fromHeader = account.getCustomHeader("From")
-        val params: CallParams = core.createCallParams(null)?.apply {
-            addCustomHeader("Contact", contactHeader)
-            addCustomHeader("From", fromHeader)
-            addCustomHeader("P-Associated-URI", pAssociatedURI)
-            mediaEncryption = MediaEncryption.None
-            enableAudio(true)
-        } ?: return
-        core.inviteAddressWithParams(remoteAddress, params).also { call = it }
     }
 
 }

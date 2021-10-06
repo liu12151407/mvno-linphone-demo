@@ -18,6 +18,7 @@ import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.core.content.edit
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
+import com.test_progect.mvno_linphone_demo.LinphoneManager
 import com.test_progect.mvno_linphone_demo.MainActivity
 import com.test_progect.mvno_linphone_demo.R
 import com.test_progect.mvno_linphone_demo.call.incoming_call.IncomingCallFragment
@@ -36,7 +37,9 @@ class CallFragment : Fragment(), CallView.Presenter, CallRouter {
     private var uncheckedBinding: CallFragmentBinding? = null
     private val binding: CallFragmentBinding get() = checkNotNull(uncheckedBinding)
     private val sharedPreferences: SharedPreferences get() = (requireActivity() as MainActivity).sharedPreferences
-    private val core: Core by lazy { (requireActivity() as MainActivity).core }
+    private val linphoneManager: LinphoneManager by lazy {
+        (requireActivity() as MainActivity).linphoneManager
+    }
     private val coreListener = object : CoreListenerStub() {
 
         override fun onAccountRegistrationStateChanged(
@@ -96,13 +99,13 @@ class CallFragment : Fragment(), CallView.Presenter, CallRouter {
     ): View? {
         uncheckedBinding = CallFragmentBinding.inflate(inflater, container, false)
         view = CallViewImpl(binding, this, sharedPreferences)
-        core.addListener(coreListener)
+        linphoneManager.addCoreListenerStub(coreListener)
         return binding.root
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        core.removeListener(coreListener)
+        linphoneManager.removeCoreListenerStub(coreListener)
     }
 
     override fun onCallButtonCLicked(phoneNumber: String) {

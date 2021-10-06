@@ -17,6 +17,9 @@ class MainActivity : AppCompatActivity(), Router {
     val core: Core by lazy {
         Factory.instance().createCore(null, null, this)
     }
+    val linphoneManager: LinphoneManager by lazy {
+        LinphoneManagerImpl(this)
+    }
     private val binding: MainActivityBinding get() = checkNotNull(uncheckedBinding)
     private var uncheckedBinding: MainActivityBinding? = null
     private var isLaunched: Boolean = false

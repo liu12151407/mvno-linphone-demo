@@ -17,6 +17,24 @@ fun validatePhoneNumber(phoneNumber: String): Boolean =
             phoneNumber.length == VALID_PHONE_NUMBER_LENGTH &&
             phoneNumber.removeRange(0, 1).isDigitsOnly()
 
+fun tryToFormatPhoneNumber(phoneNumber: String, onInvalidPhoneNumber: () -> Unit): String? {
+    val formattedPhone = phoneNumber.filterIndexed { index, ch ->
+        ch.isDigit() || if (index == 0) ch == '+' else false
+    }
+    val validateSize = formattedPhone.length in 11..14
+    val startsWithPlus = formattedPhone.startsWith("+")
+    return when {
+        validateSize.not() -> {
+            onInvalidPhoneNumber.invoke()
+            null
+        }
+        startsWithPlus.not() -> "+" + formattedPhone.replaceFirstChar {
+            it.digitToInt().minus(1).digitToChar()
+        }
+        else -> phoneNumber
+    }
+}
+
 fun View.hideKeyboard() {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
         context.inputMethodManager.hideSoftInputFromWindow(windowToken, 0)

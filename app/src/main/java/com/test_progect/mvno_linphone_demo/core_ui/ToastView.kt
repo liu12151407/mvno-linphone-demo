@@ -7,6 +7,7 @@ import com.test_progect.mvno_linphone_demo.R
 interface ToastView {
 
     fun showInvalidPhoneNumberToast()
+    fun showInvalidPhoneNumberCommonToast()
     fun showRemoteAddressErrorToast()
 
 }
@@ -15,6 +16,14 @@ class ToastViewImpl(private val context: Context) : ToastView {
 
     override fun showInvalidPhoneNumberToast() {
         Toast.makeText(context, R.string.toast_invalid_phone_format, Toast.LENGTH_LONG).show()
+    }
+
+    override fun showInvalidPhoneNumberCommonToast() {
+        Toast.makeText(
+            context,
+            R.string.toast_invalid_phone_number_format_common,
+            Toast.LENGTH_LONG
+        ).show()
     }
 
     override fun showRemoteAddressErrorToast() {

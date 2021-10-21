@@ -28,6 +28,6 @@
 
     <string name="toast_invalid_phone_format" tools:ignore="Typos">Number should be in format: +7 XXX XX XX</string>
     <string name="toast_remote_address_error">Can\'t create remote address from phone number</string>
-
+    <string name="toast_invalid_phone_number_format_common">"Invalid phone number format"</string>
 
 </resources>

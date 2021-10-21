@@ -19,8 +19,9 @@ class ChatFragment : Fragment(), ChatView.Presenter {
     private var uncheckedBinding: ChatFragmentBinding? = null
     private val binding: ChatFragmentBinding get() = checkNotNull(uncheckedBinding)
     private val sharedPreferences: SharedPreferences by lazy { (requireActivity() as MainActivity).sharedPreferences }
-    private val phoneNumber: String
+    private val rawPhoneNumber: String
         get() = binding.recipientPhoneNumberInput.editText?.text?.toString() ?: ""
+    private var phoneNumber: String? = null
     private val linphoneManager: LinphoneManager by lazy {
         (requireActivity() as MainActivity).linphoneManager
     }
@@ -101,17 +102,18 @@ class ChatFragment : Fragment(), ChatView.Presenter {
     }
 
     override fun onSendMessageClick(message: String) {
-        val isValid = validatePhoneNumber(phoneNumber)
-        if (isValid.not()) {
-            view.showInvalidPhoneNumberToast()
-            return
+        if (phoneNumber == null) {
+            val formattedNumber = tryToFormatPhoneNumber(rawPhoneNumber) {
+                view.showInvalidPhoneNumberToast()
+            } ?: return
+            phoneNumber = formattedNumber
+            sharedPreferences.edit { putString(PREF_CHAT_RECIPIENT_PHONE, formattedNumber) }
+            createChatRoom()
         }
-        sharedPreferences.edit { putString(PREF_CHAT_RECIPIENT_PHONE, phoneNumber) }
         sendMessage(message)
     }
 
     private fun sendMessage(message: String) {
-        if (chatRoom == null) createChatRoom()
         chatRoom?.let {
             linphoneManager.sendMessage(it, message, chatMessageListener) { chatMessage, content ->
                 view.addMessage(chatMessage, content)
@@ -121,7 +123,7 @@ class ChatFragment : Fragment(), ChatView.Presenter {
     }
 
     private fun createChatRoom() {
-        chatRoom = linphoneManager.createChatRoom(phoneNumber)
+        chatRoom = linphoneManager.createChatRoom(checkNotNull(phoneNumber))
         if (chatRoom == null) {
             view.showRemoteAddressErrorToast()
             return

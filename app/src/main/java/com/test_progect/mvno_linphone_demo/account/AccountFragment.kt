@@ -103,7 +103,6 @@ class AccountFragment : Fragment() {
             R.id.appVersionInfoMenuItem -> {
                 val appVersion = BuildConfig.VERSION_NAME
                 AlertDialog.Builder(requireContext())
-                    .setTitle("About App")
                     .setMessage("App version: $appVersion")
                     .setPositiveButton("Ok") { dialog, _ ->
                         dialog.dismiss()

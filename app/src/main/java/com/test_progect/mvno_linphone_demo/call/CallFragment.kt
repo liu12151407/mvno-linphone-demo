@@ -24,7 +24,6 @@ import com.test_progect.mvno_linphone_demo.R
 import com.test_progect.mvno_linphone_demo.call.incoming_call.IncomingCallFragment
 import com.test_progect.mvno_linphone_demo.call.outgoing_call.createOutgoingCallFragment
 import com.test_progect.mvno_linphone_demo.databinding.CallFragmentBinding
-import com.test_progect.mvno_linphone_demo.tryToFormatPhoneNumber
 import org.linphone.core.*
 
 
@@ -109,10 +108,7 @@ class CallFragment : Fragment(), CallView.Presenter, CallRouter {
     }
 
     override fun onCallButtonCLicked(phoneNumber: String) {
-        val formattedPhone = tryToFormatPhoneNumber(phoneNumber) {
-            view.showInvalidPhoneNumberCommonToast()
-        } ?: return
-        savePhoneNumber(formattedPhone)
+        savePhoneNumber(phoneNumber)
         val permissionGranted =
             checkSelfPermission(requireContext(), RECORD_AUDIO) == PERMISSION_GRANTED
         if (permissionGranted) {

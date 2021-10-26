@@ -103,11 +103,8 @@ class ChatFragment : Fragment(), ChatView.Presenter {
 
     override fun onSendMessageClick(message: String) {
         if (phoneNumber == null) {
-            val formattedNumber = tryToFormatPhoneNumber(rawPhoneNumber) {
-                view.showInvalidPhoneNumberToast()
-            } ?: return
-            phoneNumber = formattedNumber
-            sharedPreferences.edit { putString(PREF_CHAT_RECIPIENT_PHONE, formattedNumber) }
+            phoneNumber = rawPhoneNumber
+            sharedPreferences.edit { putString(PREF_CHAT_RECIPIENT_PHONE, phoneNumber) }
             createChatRoom()
         }
         sendMessage(message)

@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity(), Router {
         uncheckedBinding = MainActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
         Factory.instance().setDebugMode(true, "MvnoLinphone")
-
+        BuildConfig.VERSION_NAME
     }
 
     override fun onStart() {

@@ -5,6 +5,7 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import androidx.core.view.children
+import com.test_progect.mvno_linphone_demo.BuildConfig
 import com.test_progect.mvno_linphone_demo.R
 import com.test_progect.mvno_linphone_demo.core_ui.ToastView
 import com.test_progect.mvno_linphone_demo.core_ui.ToastViewImpl
@@ -60,6 +61,8 @@ class RegistrationViewImpl(
         binding.root.setOnClickListener { clearFocus() }
         binding.coreVersionView.text =
             context.getString(R.string.linphone_core_version, coreVersion)
+        binding.appVersionView.text =
+            context.getString(R.string.linphone_app_version, BuildConfig.VERSION_NAME)
         binding.registrationButton.setOnClickListener {
             clearFocus()
             presenter.onRegistrationButtonClicked(

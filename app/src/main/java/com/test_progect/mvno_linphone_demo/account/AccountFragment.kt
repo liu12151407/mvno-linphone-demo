@@ -6,6 +6,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.StringRes
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import com.test_progect.mvno_linphone_demo.*
 import com.test_progect.mvno_linphone_demo.call.CallFragment
@@ -98,6 +99,16 @@ class AccountFragment : Fragment() {
             R.id.logoutMenuItem -> {
                 linphoneManager.logoutAccount()
                 router.openRegistration()
+            }
+            R.id.appVersionInfoMenuItem -> {
+                val appVersion = BuildConfig.VERSION_NAME
+                AlertDialog.Builder(requireContext())
+                    .setTitle("About App")
+                    .setMessage("App version: $appVersion")
+                    .setPositiveButton("Ok") { dialog, _ ->
+                        dialog.dismiss()
+                    }
+                    .show()
             }
         }
         return true

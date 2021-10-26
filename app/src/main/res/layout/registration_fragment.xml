@@ -32,6 +32,13 @@
         </com.google.android.material.appbar.AppBarLayout>
 
         <TextView
+            android:id="@+id/appVersionView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            tools:text="App version: 123" />
+
+        <TextView
             android:id="@+id/coreVersionView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

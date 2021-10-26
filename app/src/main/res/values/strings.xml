@@ -3,6 +3,7 @@
     <string name="app_name">mvno-linphone-demo</string>
 
     <string name="linphone_core_version">Core version: %s</string>
+    <string name="linphone_app_version">App version: %s</string>
     <string name="linphone_registration_ok">Connected</string>
     <string name="linphone_registration_failed">Connection failed: %s</string>
 

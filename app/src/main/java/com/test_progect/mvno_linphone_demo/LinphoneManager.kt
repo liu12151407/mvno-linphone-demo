@@ -1,59 +1,61 @@
 package com.test_progect.mvno_linphone_demo
 
-import android.annotation.SuppressLint
-import android.content.Context
-import android.provider.Settings
+import android.location.Location
+import androidx.annotation.MainThread
+import androidx.appcompat.app.AppCompatActivity
 import org.linphone.core.*
-import org.linphone.core.tools.Log
 
 interface LinphoneManager {
 
     val core: Core
+
     fun logoutAccount()
     fun registerAccount(
-        username: String,
-        phoneNumber: String,
-        domain: String,
-        password: String,
-        proxy: String,
-        transportType: TransportType,
+        accountInfo: NoSimAccountInfo,
+        location: Location,
         coreListenerStub: CoreListenerStub,
     )
 
-    fun initOutgoingCall(phoneNumber: String): Call?
-    fun acceptCall()
-    fun terminateCurrentCall()
+    fun call(phoneNumber: String, location: Location): Call?
+    fun acceptCall(location: Location)
+    fun terminateCall()
+
     fun addCoreListenerStub(coreListenerStub: CoreListenerStub)
     fun removeCoreListenerStub(coreListenerStub: CoreListenerStub)
     fun createChatRoom(phoneNumber: String): ChatRoom?
     fun sendMessage(
+        location: Location,
         chatRoom: ChatRoom,
         message: String,
         messageListener: ChatMessageListenerStub,
         addToViewBlock: (ChatMessage, Content) -> Unit
     )
 
+    fun enableSpeaker(enable: Boolean)
+    fun enableMicrophone(enable: Boolean)
+
 }
 
-class LinphoneManagerImpl(private val context: Context) : LinphoneManager {
-
-    companion object {
-
-        private const val CONTACT_HEADER_KEY: String = "Contact"
-        private const val FROM_HEADER_KEY: String = "From"
-        private const val TO_HEADER_KEY: String = "To"
-        private const val P_ASSOCIATED_URI_HEADER_KEY: String = "P-Associated-URI"
-        private const val AUTHORIZATION_HEADER_KEY: String = "Authorization"
-
-    }
+class LinphoneManagerImpl(
+    private val activity: AppCompatActivity,
+    private val deviceIdProvider: DeviceIdProvider,
+) : LinphoneManager {
 
     override val core: Core by lazy {
-        Factory.instance().createCore(null, null, context)
+        Factory.instance().createCore(null, null, activity)
     }
-    private var imsi: String? = null
-    private var phoneNumber: String? = null
-    private var domain: String? = null
 
+    private var lifecycleAccountInfo: NoSimAccountInfo? = null
+    private val accountInfo: NoSimAccountInfo get() = checkNotNull(lifecycleAccountInfo)
+    private val imsi: String get() = accountInfo.imsi
+    private val domain: String get() = accountInfo.domain
+    private val password: String get() = accountInfo.password
+    private val proxy: String get() = accountInfo.proxy
+    private val transportType: TransportType
+        get() = TransportType.fromInt(accountInfo.transportType)
+    private val deviceId: String = deviceIdProvider.getDeviceId()
+
+    @MainThread
     override fun logoutAccount() {
         core.currentCall?.terminate()
         core.chatRooms.forEach { core.deleteChatRoom(it) }
@@ -64,23 +66,19 @@ class LinphoneManagerImpl(private val context: Context) : LinphoneManager {
         }
     }
 
+    @MainThread
     override fun registerAccount(
-        username: String,
-        phoneNumber: String,
-        domain: String,
-        password: String,
-        proxy: String,
-        transportType: TransportType,
+        accountInfo: NoSimAccountInfo,
+        location: Location,
         coreListenerStub: CoreListenerStub,
     ) {
-        this.imsi = username
-        this.phoneNumber = phoneNumber
-        this.domain = domain
+        lifecycleAccountInfo = accountInfo
         val accountParams = createAccountParams(proxy, transportType)
-        val account = createAccount(accountParams)
+        val account = core.createAccount(accountParams)
+            .applyAuthorizationHeaders(accountInfo, location, deviceId)
         val authInfo = Factory.instance().createAuthInfo(
-            username,
-            "$username@$domain",
+            imsi,
+            "$imsi@$domain",
             password,
             null,
             null,
@@ -95,28 +93,36 @@ class LinphoneManagerImpl(private val context: Context) : LinphoneManager {
         }
     }
 
-    override fun initOutgoingCall(phoneNumber: String): Call? {
+    @MainThread
+    override fun call(phoneNumber: String, location: Location): Call? {
         val remoteAddress = core.interpretUrl(phoneNumber) ?: return null
-        val params = createCallParams() ?: return null
+        val params = createCallParams(location)
         return core.inviteAddressWithParams(remoteAddress, params)
     }
 
-    override fun acceptCall() {
-        core.currentCall?.accept()
+    @MainThread
+    override fun acceptCall(location: Location) {
+        val call = checkNotNull(core.currentCall)
+        val params = checkNotNull(core.createCallParams(call)).applyLocationHeader(location)
+        call.acceptWithParams(params)
     }
 
-    override fun terminateCurrentCall() {
+    @MainThread
+    override fun terminateCall() {
         core.currentCall?.terminate()
     }
 
+    @MainThread
     override fun addCoreListenerStub(coreListenerStub: CoreListenerStub) {
         core.addListener(coreListenerStub)
     }
 
+    @MainThread
     override fun removeCoreListenerStub(coreListenerStub: CoreListenerStub) {
         core.removeListener(coreListenerStub)
     }
 
+    @MainThread
     override fun createChatRoom(phoneNumber: String): ChatRoom? {
         val params = core.createDefaultChatRoomParams().setDefaultParams()
         val remoteAddress = core.interpretUrl(phoneNumber) ?: return null
@@ -124,7 +130,9 @@ class LinphoneManagerImpl(private val context: Context) : LinphoneManager {
         return core.createChatRoom(params, localAddress, arrayOf(remoteAddress))
     }
 
+    @MainThread
     override fun sendMessage(
+        location: Location,
         chatRoom: ChatRoom,
         message: String,
         messageListener: ChatMessageListenerStub,
@@ -134,31 +142,33 @@ class LinphoneManagerImpl(private val context: Context) : LinphoneManager {
             addListener(messageListener)
             contents.forEach { addToViewBlock(this, it) }
             val pAssociatedURI =
-                checkNotNull(core.defaultAccount).getCustomHeader(P_ASSOCIATED_URI_HEADER_KEY)
-            addCustomHeader(CONTACT_HEADER_KEY, createContactHeaderValue())
-            addCustomHeader(FROM_HEADER_KEY, createFromHeaderValue(false))
-            addCustomHeader(P_ASSOCIATED_URI_HEADER_KEY, pAssociatedURI)
+                checkNotNull(core.defaultAccount?.getCustomHeader(P_ASSOCIATED_URI_HEADER_KEY))
+            applyHeaders(
+                accountInfo,
+                location,
+                deviceId,
+                pAssociatedURI,
+            )
             send()
         }
     }
 
-    private fun ChatRoomParams.setDefaultParams(): ChatRoomParams {
-        backend = ChatRoomBackend.Basic
-        enableEncryption(false)
-        enableGroup(false)
-        return if (isValid) this else throw IllegalArgumentException("Encryption or Group chats are not supported")
-    }
-
-    private fun createAccount(accountParams: AccountParams): Account =
-        core.createAccount(accountParams).apply {
-            setCustomHeader(TO_HEADER_KEY, createToHeaderValue())
-            setCustomHeader(FROM_HEADER_KEY, createFromHeaderValue(true))
-            setCustomHeader(AUTHORIZATION_HEADER_KEY, createAuthorizationHeaderValue())
-            setCustomHeader(CONTACT_HEADER_KEY, createContactHeaderValue())
-            addListener { _, state, message ->
-                Log.i("[Account] Registration state changed: $state, $message")
+    @MainThread
+    override fun enableSpeaker(enable: Boolean) {
+        val call = checkNotNull(core.currentCall)
+        for (audioDevice in core.audioDevices) {
+            if (!enable && audioDevice.type == AudioDevice.Type.Earpiece) {
+                call.outputAudioDevice = audioDevice
+            } else if (enable && audioDevice.type == AudioDevice.Type.Speaker) {
+                call.outputAudioDevice = audioDevice
             }
         }
+    }
+
+    @MainThread
+    override fun enableMicrophone(enable: Boolean) {
+        core.enableMic(enable)
+    }
 
     private fun createAccountParams(proxy: String, transportType: TransportType): AccountParams {
         val identity = Factory.instance().createAddress("sip:$imsi@$domain")
@@ -171,47 +181,23 @@ class LinphoneManagerImpl(private val context: Context) : LinphoneManager {
         }
     }
 
-    private fun createCallParams(): CallParams? {
+    private fun createCallParams(location: Location): CallParams {
         val pAssociatedURI =
-            checkNotNull(core.defaultAccount).getCustomHeader(P_ASSOCIATED_URI_HEADER_KEY)
-        return core.createCallParams(null)?.apply {
-            addCustomHeader(CONTACT_HEADER_KEY, createContactHeaderValue())
-            addCustomHeader(FROM_HEADER_KEY, createFromHeaderValue(false))
-            addCustomHeader(P_ASSOCIATED_URI_HEADER_KEY, pAssociatedURI)
-            mediaEncryption = MediaEncryption.None
-            enableAudio(true)
-        }
+            checkNotNull(core.defaultAccount?.getCustomHeader(P_ASSOCIATED_URI_HEADER_KEY))
+        return checkNotNull(core.createCallParams(null))
+            .applyHeaders(accountInfo, location, deviceId, pAssociatedURI)
+            .apply {
+                mediaEncryption = MediaEncryption.None
+                enableAudio(true)
+
+            }
     }
 
-    @SuppressLint("HardwareIds")
-    private fun createContactHeaderValue(): String {
-        val deviceId =
-            Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
-        return ("<sip:$phoneNumber@172.30.147.209:43530;" +
-                "transport=udp;" +
-                "pn-provider=tinkoff;" +
-                "pn-prid=$deviceId;>;" +
-                "gr=urn;" +
-                "+g.3gpp.smsip;" +
-                "+sip.instance=\"<urn:uuid:d1644492-1103-00f8-a4eb-c7a87d3b41f7>\"")
-    }
-
-    private fun createFromHeaderValue(isRegistration: Boolean): String {
-        val address = if (isRegistration) imsi else phoneNumber
-        return "<sip:$address@$domain>;tag=~UwXzKOlD\n"
-    }
-
-    private fun createToHeaderValue(): String = "sip:$imsi@$domain"
-
-    private fun createAuthorizationHeaderValue(): String {
-        return "Digest realm=\"$domain\", " +
-                "nonce=\"9b4c5fedc08296985b586acee1f16218\", " +
-                "algorithm=MD5, username=\"$imsi@$domain\", " +
-                "uri=\"sip:$domain\", " +
-                "response=\"365b94fb3ad933759f921d7d6d88d257\", " +
-                "cnonce=\"HQlmMYSNfKlp66nk\", " +
-                "nc=00000001, " +
-                "qop=auth"
+    private fun ChatRoomParams.setDefaultParams(): ChatRoomParams {
+        backend = ChatRoomBackend.Basic
+        enableEncryption(false)
+        enableGroup(false)
+        return if (isValid) this else throw IllegalArgumentException("Encryption or Group chats are not supported")
     }
 
 }

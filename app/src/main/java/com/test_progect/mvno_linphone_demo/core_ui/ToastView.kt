@@ -9,6 +9,7 @@ interface ToastView {
     fun showInvalidPhoneNumberToast()
     fun showInvalidPhoneNumberCommonToast()
     fun showRemoteAddressErrorToast()
+    fun showLocationPermissionDenied()
 
 }
 
@@ -28,6 +29,10 @@ class ToastViewImpl(private val context: Context) : ToastView {
 
     override fun showRemoteAddressErrorToast() {
         Toast.makeText(context, R.string.toast_remote_address_error, Toast.LENGTH_LONG).show()
+    }
+
+    override fun showLocationPermissionDenied() {
+        Toast.makeText(context, "No location permission. Go to settings", Toast.LENGTH_LONG).show()
     }
 
 

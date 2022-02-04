@@ -1,6 +1,7 @@
 package com.test_progect.mvno_linphone_demo.chat
 
 import android.content.SharedPreferences
+import android.location.Location
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,10 +10,16 @@ import androidx.core.content.edit
 import androidx.fragment.app.Fragment
 import com.test_progect.mvno_linphone_demo.*
 import com.test_progect.mvno_linphone_demo.R
+import com.test_progect.mvno_linphone_demo.core_ui.CoroutineJobDelegate
+import com.test_progect.mvno_linphone_demo.core_ui.CoroutineJobDelegateImpl
 import com.test_progect.mvno_linphone_demo.databinding.ChatFragmentBinding
 import org.linphone.core.*
+import ru.tcsbank.mvno.coroutines.onError
+import ru.tcsbank.mvno.coroutines.onFinish
+import ru.tcsbank.mvno.coroutines.onLaunch
 
-class ChatFragment : Fragment(), ChatView.Presenter {
+class ChatFragment : Fragment(), ChatView.Presenter,
+    CoroutineJobDelegate by CoroutineJobDelegateImpl() {
 
     private lateinit var view: ChatView
     private var chatRoom: ChatRoom? = null
@@ -25,6 +32,10 @@ class ChatFragment : Fragment(), ChatView.Presenter {
     private val linphoneManager: LinphoneManager by lazy {
         (requireActivity() as MainActivity).linphoneManager
     }
+    private val locationProvider: LocationProvider by lazy {
+        (requireActivity() as MainActivity).locationProvider
+    }
+    private var location: Location? = null
     private val router: Router by lazy { requireActivity() as Router }
     private val coreListener = object : CoreListenerStub() {
 
@@ -84,7 +95,6 @@ class ChatFragment : Fragment(), ChatView.Presenter {
 
     }
 
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -94,6 +104,16 @@ class ChatFragment : Fragment(), ChatView.Presenter {
         view = ChatViewImpl(binding, this, sharedPreferences)
         linphoneManager.addCoreListenerStub(coreListener)
         return binding.root
+    }
+
+    override fun onStart() {
+        super.onStart()
+        initializeCoroutineJob()
+    }
+
+    override fun onStop() {
+        cancelCoroutineJob()
+        super.onStop()
     }
 
     override fun onDestroyView() {
@@ -111,12 +131,21 @@ class ChatFragment : Fragment(), ChatView.Presenter {
     }
 
     private fun sendMessage(message: String) {
-        chatRoom?.let {
-            linphoneManager.sendMessage(it, message, chatMessageListener) { chatMessage, content ->
-                view.addMessage(chatMessage, content)
+        onLaunch { location = locationProvider.getLocation() }
+            .onError { }
+            .onFinish {
+                if (location != null && chatRoom != null) {
+                    linphoneManager.sendMessage(
+                        checkNotNull(location),
+                        checkNotNull(chatRoom),
+                        message,
+                        chatMessageListener
+                    ) { chatMessage, content ->
+                        view.addMessage(chatMessage, content)
+                    }
+                    view.clearMessageInput()
+                }
             }
-            view.clearMessageInput()
-        }
     }
 
     private fun createChatRoom() {

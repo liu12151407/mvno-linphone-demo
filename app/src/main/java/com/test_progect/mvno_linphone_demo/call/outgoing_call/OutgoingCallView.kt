@@ -8,14 +8,14 @@ interface OutgoingCallView {
     fun setOutgoingCallState(message: String)
     fun enableMicAndSpeaker()
     fun disableButtons()
-    fun setMicIcon(@DrawableRes id: Int)
+    fun setMuteIcon(@DrawableRes id: Int)
     fun setSpeakerIcon(@DrawableRes id: Int)
 
     interface Presenter {
 
         fun onCallEndButtonClicked()
         fun onSpeakerButtonClicked()
-        fun onMicButtonClicked()
+        fun onMuteButtonClicked()
 
     }
 
@@ -33,9 +33,9 @@ class OutgoingCallViewImpl(
                 presenter.onCallEndButtonClicked()
             }
         }
-        binding.micButton.apply {
+        binding.muteButton.apply {
             isEnabled = false
-            setOnClickListener { presenter.onMicButtonClicked() }
+            setOnClickListener { presenter.onMuteButtonClicked() }
         }
         binding.speakerButton.apply {
             isEnabled = false
@@ -49,7 +49,7 @@ class OutgoingCallViewImpl(
 
     override fun enableMicAndSpeaker() {
         binding.apply {
-            micButton.isEnabled = true
+            muteButton.isEnabled = true
             speakerButton.isEnabled = true
         }
     }
@@ -57,13 +57,13 @@ class OutgoingCallViewImpl(
     override fun disableButtons() {
         binding.apply {
             callEndButton.isEnabled = false
-            micButton.isEnabled = false
+            muteButton.isEnabled = false
             speakerButton.isEnabled = false
         }
     }
 
-    override fun setMicIcon(id: Int) {
-        binding.micButton.setImageResource(id)
+    override fun setMuteIcon(id: Int) {
+        binding.muteButton.setImageResource(id)
     }
 
     override fun setSpeakerIcon(id: Int) {

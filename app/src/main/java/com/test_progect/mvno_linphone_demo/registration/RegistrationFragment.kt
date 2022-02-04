@@ -1,20 +1,34 @@
 package com.test_progect.mvno_linphone_demo.registration
 
+import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.content.SharedPreferences
+import android.location.Location
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.edit
 import androidx.fragment.app.Fragment
-import com.test_progect.mvno_linphone_demo.LinphoneManager
-import com.test_progect.mvno_linphone_demo.MainActivity
-import com.test_progect.mvno_linphone_demo.Router
+import com.test_progect.mvno_linphone_demo.*
+import com.test_progect.mvno_linphone_demo.core_ui.CoroutineJobDelegate
+import com.test_progect.mvno_linphone_demo.core_ui.CoroutineJobDelegateImpl
+import com.test_progect.mvno_linphone_demo.core_ui.registerPermissionRequestLauncher
 import com.test_progect.mvno_linphone_demo.databinding.RegistrationFragmentBinding
-import com.test_progect.mvno_linphone_demo.validatePhoneNumber
-import org.linphone.core.*
+import org.linphone.core.Account
+import org.linphone.core.Core
+import org.linphone.core.CoreListenerStub
+import org.linphone.core.RegistrationState
+import ru.tcsbank.mvno.coroutines.onError
+import ru.tcsbank.mvno.coroutines.onFinish
+import ru.tcsbank.mvno.coroutines.onLaunch
 
-class RegistrationFragment : Fragment(), RegistrationView.Presenter {
+class RegistrationFragment : Fragment(), RegistrationView.Presenter,
+    CoroutineJobDelegate by CoroutineJobDelegateImpl() {
+
+    private val requestLauncher = registerPermissionRequestLauncher(
+        onPermissionsGranted = { register(checkNotNull(accountInfo)) },
+        onPermissionDenied = { view.showLocationPermissionDenied() }
+    )
 
     private lateinit var view: RegistrationView
     private var uncheckedBinding: RegistrationFragmentBinding? = null
@@ -23,6 +37,9 @@ class RegistrationFragment : Fragment(), RegistrationView.Presenter {
     private val sharedPreferences: SharedPreferences by lazy { (requireActivity() as MainActivity).sharedPreferences }
     private val linphoneManager: LinphoneManager by lazy {
         (requireActivity() as MainActivity).linphoneManager
+    }
+    private val locationProvider: LocationProvider by lazy {
+        (requireActivity() as MainActivity).locationProvider
     }
     private val coreListener = object : CoreListenerStub() {
 
@@ -53,34 +70,53 @@ class RegistrationFragment : Fragment(), RegistrationView.Presenter {
         return binding.root
     }
 
+    override fun onStart() {
+        super.onStart()
+        initializeCoroutineJob()
+    }
+
+    override fun onStop() {
+        cancelCoroutineJob()
+        super.onStop()
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         linphoneManager.removeCoreListenerStub(coreListener)
     }
 
-    override fun onRegistrationButtonClicked(
-        username: String,
-        phoneNumber: String,
-        domain: String,
-        password: String,
-        proxy: String,
-        transportType: TransportType
-    ) {
-        saveAuthInfo(username, phoneNumber, domain, password, proxy)
-        val isValid = validatePhoneNumber(phoneNumber)
-        if (isValid.not()) {
+    private var location: Location? = null
+    private var accountInfo: NoSimAccountInfo? = null
+
+    override fun onRegistrationButtonClicked(accountInfo: NoSimAccountInfo) {
+        this.accountInfo = accountInfo
+        requestLauncher.launch(arrayOf(ACCESS_FINE_LOCATION))
+    }
+
+    private fun register(accountInfo: NoSimAccountInfo) {
+        onLaunch { location = locationProvider.getLocation() }
+            .onError { }
+            .onFinish {
+                accountInfo.apply {
+                    saveAuthInfo(imsi, msisdn, domain, password, proxy)
+                }
+                accountInfo.validatePhoneNumber()
+                if (location != null && accountInfo.validatePhoneNumber()) {
+                    linphoneManager.registerAccount(
+                        accountInfo,
+                        checkNotNull(location),
+                        coreListener
+                    )
+                }
+            }
+    }
+
+    private fun NoSimAccountInfo.validatePhoneNumber(): Boolean {
+        if (!validatePhoneNumber(msisdn)) {
             view.showInvalidPhoneNumberToast()
-            return
+            return false
         }
-        linphoneManager.registerAccount(
-            username,
-            phoneNumber,
-            domain,
-            password,
-            proxy,
-            transportType,
-            coreListener
-        )
+        return true
     }
 
     private fun saveAuthInfo(

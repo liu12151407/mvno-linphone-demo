@@ -17,9 +17,11 @@ class MainActivity : AppCompatActivity(), Router {
     val core: Core by lazy {
         Factory.instance().createCore(null, null, this)
     }
+    val locationProvider: LocationProvider = LocationProviderImpl(this)
     val linphoneManager: LinphoneManager by lazy {
-        LinphoneManagerImpl(this)
+        LinphoneManagerImpl(this, deviceIdProvider)
     }
+    private val deviceIdProvider: DeviceIdProvider = DeviceIdProviderImpl(this)
     private val binding: MainActivityBinding get() = checkNotNull(uncheckedBinding)
     private var uncheckedBinding: MainActivityBinding? = null
     private var isLaunched: Boolean = false
@@ -29,7 +31,7 @@ class MainActivity : AppCompatActivity(), Router {
         uncheckedBinding = MainActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
         Factory.instance().setDebugMode(true, "MvnoLinphone")
-        BuildConfig.VERSION_NAME
+//        BuildConfig.VERSION_NAME
     }
 
     override fun onStart() {

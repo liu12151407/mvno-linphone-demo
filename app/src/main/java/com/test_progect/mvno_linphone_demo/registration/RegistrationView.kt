@@ -6,6 +6,7 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import androidx.core.view.children
 import com.test_progect.mvno_linphone_demo.BuildConfig
+import com.test_progect.mvno_linphone_demo.NoSimAccountInfo
 import com.test_progect.mvno_linphone_demo.R
 import com.test_progect.mvno_linphone_demo.core_ui.ToastView
 import com.test_progect.mvno_linphone_demo.core_ui.ToastViewImpl
@@ -27,14 +28,7 @@ interface RegistrationView : ToastView {
 
     interface Presenter {
 
-        fun onRegistrationButtonClicked(
-            username: String,
-            phoneNumber: String,
-            domain: String,
-            password: String,
-            proxy: String,
-            transportType: TransportType
-        )
+        fun onRegistrationButtonClicked(accountInfo: NoSimAccountInfo)
     }
 
 }
@@ -47,16 +41,18 @@ class RegistrationViewImpl(
 ) : RegistrationView,
     ToastView by ToastViewImpl(binding.root.context) {
 
+    private val accountInfo: NoSimAccountInfo
+        get() = NoSimAccountInfo(imsi, msisdn, domain, password, proxy)
+
     private val context = binding.root.context
-    private val username: String get() = binding.imsiInputLayout.editText?.text.toString()
-    private val phoneNumber: String get() = binding.phoneNumberInputLayout.editText?.text.toString()
+    private val imsi: String get() = binding.imsiInputLayout.editText?.text.toString()
+    private val msisdn: String get() = binding.phoneNumberInputLayout.editText?.text.toString()
     private val domain: String get() = binding.domainInputLayout.editText?.text.toString()
     private val password: String get() = binding.passwordInputLayout.editText?.text.toString()
     private val proxy: String get() = binding.proxyInputLayout.editText?.text.toString()
     private var transportType: TransportType = TransportType.Udp
 
     init {
-
         initAuthInfoViews()
         binding.root.setOnClickListener { clearFocus() }
         binding.coreVersionView.text =
@@ -65,14 +61,7 @@ class RegistrationViewImpl(
             context.getString(R.string.linphone_app_version, BuildConfig.VERSION_NAME)
         binding.registrationButton.setOnClickListener {
             clearFocus()
-            presenter.onRegistrationButtonClicked(
-                username,
-                phoneNumber,
-                domain,
-                password,
-                proxy,
-                transportType
-            )
+            presenter.onRegistrationButtonClicked(accountInfo)
         }
 
     }
